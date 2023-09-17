@@ -2,7 +2,8 @@
     <!DOCTYPE html>
     <html lang="en"
             
-          
+          data-theme="dark"
+            
     >
     <head>
     <meta charset="utf-8">
@@ -230,6 +231,12 @@
             <a data-url="http://example.com/2023/07/27/crack/" data-id="clmnr8k060007so8gdr7we2nt" data-title="crack"
                class="article-share-link">Share</a>
             
+                <a href="/2023/07/27/crack/#comments" class="article-comment-link">
+                    <span class="post-comments-count valine-comment-count" data-xid="/2023/07/27/crack/"
+                          itemprop="commentCount"></span>
+                    Comments
+                </a>
+            
             
             
             
@@ -278,6 +285,10 @@
 </article>
 
 
+    <section id="comments" class="vcomment">
+
+    </section>
+
 
 
 
@@ -292,7 +303,7 @@
                     <aside id="sidebar">
     <div class="sidebar-wrap wow fadeInRight">
         <div class="sidebar-author">
-            <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="honkerZ" class="lazyload">
+            <img data-src="https://img.clinicmed.net/uploadimg/image/20200922/20200922203205_12828.jpg" data-sizes="auto" alt="honkerZ" class="lazyload">
             <div class="sidebar-author-name">honkerZ</div>
             <div class="sidebar-description">hacking</div>
         </div>
@@ -387,7 +398,7 @@
             
             <div>
                 <span class="icon-copyright"></span>
-                2020-2023
+                2022-2023
                 <span class="footer-info-sep"></span>
                 honkerZ
             </div>
@@ -507,6 +518,30 @@
 
 
 
+
+    
+<script src="https://unpkg.com/valine@1.5.1/dist/Valine.min.js"></script>
+
+    <script>
+        var GUEST_INFO = ['nick', 'mail', 'link'];
+        var guest_info = 'nick,mail,link'.split(',').filter(function (item) {
+            return GUEST_INFO.indexOf(item) > -1
+        });
+        var recordIP = JSON.parse('true');
+        var highlight = JSON.parse('true');
+
+        new Valine({
+            el: '.vcomment',
+            appId: "h0gFCIMGQcMjOTLRdm7TOR2m-gzGzoHsz",
+            appKey: "dWDvfyka6iisoqCEA76ZWmy7",
+            placeholder: "Just go go",
+            pageSize: '10',
+            avatar: 'mp',
+            lang: 'zh-cn',
+            recordIP: recordIP,
+            highlight: highlight
+        });
+    </script>
 
 
 
